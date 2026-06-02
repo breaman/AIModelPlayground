@@ -75,10 +75,10 @@ Code structured in the following branch proposal (this may change as I wrie thin
   - pasted the above prompt into the command line
   - once the plan was created, ran `/clear` to clear out the session
   - typed `execute all phases of the plan in the @plan.md file`
-- 4-minimax-m3
+- 4-minimax-m3 - one note here, i had to clear out the claude memory folder for the AIModelPlayground directory since this model used it as a reference
   - create a UserGroupSiteMiniMaxM3 directory
   - navigate to the directory and type `dotnet new breaman.blazor`
-  - launched with `ollama launch claude --model kimi-k2.6:cloud`
+  - launched with `ollama launch claude --model minimax-m3:cloud`
   - hit `shift-tab` to put it into `accept edits on` mode
   - pasted the above prompt into the command line
   - once the plan was created, ran `/clear` to clear out the session
