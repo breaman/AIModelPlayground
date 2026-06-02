@@ -16,5 +16,8 @@ builder.Services.AddScoped(sp =>
     });
 
 builder.Services.AddScoped<IToastService, ToastService>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IEventsService, EventsService>();
+builder.Services.AddScoped<ITopicSuggestionsService, TopicSuggestionsService>();
 
 await builder.Build().RunAsync();

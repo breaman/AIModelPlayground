@@ -1,0 +1,162 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveWebAssembly
+
+@using UserGroupSiteKimiK26.Shared.Dtos
+@using UserGroupSiteKimiK26.Shared.Services
+
+@inject HttpClient HttpClient
+@inject IToastService ToastService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>User Management</PageTitle>
+
+<h3>User Management</h3>
+
+@if (_users is null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Admin</th>
+                <th>Speaker</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in _users)
+            {
+                <tr>
+                    <td>@user.Email</td>
+                    <td>@(user.FirstName) @(user.LastName)</td>
+                    <td>
+                        <input type="checkbox"
+                               class="form-check-input"
+                               checked="@(user.Roles.Contains("Admin"))"
+                               disabled="@(user.Id == _currentUserId)"
+                               @onchange="e => ToggleAdmin(user, (bool)e.Value!)" />
+                    </td>
+                    <td>
+                        <input type="checkbox"
+                               class="form-check-input"
+                               checked="@(user.Roles.Contains("Speaker"))"
+                               @onchange="e => ToggleSpeaker(user, (bool)e.Value!)" />
+                    </td>
+                    <td>
+                        @if (_savingUserId == user.Id)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-primary" @onclick="() => SaveUser(user)">Save</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<UserDto>? _users;
+    private int _currentUserId;
+    private int? _savingUserId;
+    private readonly Dictionary<int, UpdateUserRolesDto> _pendingChanges = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userIdClaim = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var uid))
+        {
+            _currentUserId = uid;
+        }
+
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        try
+        {
+            _users = await HttpClient.GetFromJsonAsync<List<UserDto>>("api/users");
+        }
+        catch
+        {
+            ToastService.ShowError("Failed to load users.");
+        }
+    }
+
+    private void ToggleAdmin(UserDto user, bool isChecked)
+    {
+        var dto = GetOrCreatePendingDto(user);
+        dto.IsAdmin = isChecked;
+    }
+
+    private void ToggleSpeaker(UserDto user, bool isChecked)
+    {
+        var dto = GetOrCreatePendingDto(user);
+        dto.IsSpeaker = isChecked;
+    }
+
+    private UpdateUserRolesDto GetOrCreatePendingDto(UserDto user)
+    {
+        if (!_pendingChanges.TryGetValue(user.Id, out var dto))
+        {
+            dto = new UpdateUserRolesDto
+            {
+                IsAdmin = user.Roles.Contains("Admin"),
+                IsSpeaker = user.Roles.Contains("Speaker")
+            };
+            _pendingChanges[user.Id] = dto;
+        }
+        return dto;
+    }
+
+    private async Task SaveUser(UserDto user)
+    {
+        if (!_pendingChanges.TryGetValue(user.Id, out var dto))
+        {
+            ToastService.ShowInfo("No changes to save.");
+            return;
+        }
+
+        _savingUserId = user.Id;
+        try
+        {
+            var response = await HttpClient.PutAsJsonAsync($"api/users/{user.Id}/roles", dto);
+            if (response.IsSuccessStatusCode)
+            {
+                ToastService.ShowSuccess("User roles updated successfully.");
+                _pendingChanges.Remove(user.Id);
+                user.Roles = new List<string>();
+                if (dto.IsAdmin) user.Roles.Add("Admin");
+                if (dto.IsSpeaker) user.Roles.Add("Speaker");
+            }
+            else
+            {
+                var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+                ToastService.ShowError(error?["error"] ?? "Failed to update user roles.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            _savingUserId = null;
+        }
+    }
+}

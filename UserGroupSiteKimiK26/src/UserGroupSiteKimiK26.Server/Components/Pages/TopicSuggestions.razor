@@ -1,0 +1,325 @@
+@page "/topics"
+@attribute [Authorize]
+@rendermode InteractiveWebAssembly
+
+@using UserGroupSiteKimiK26.Shared.Dtos
+@using UserGroupSiteKimiK26.Shared.Services
+
+@inject ITopicSuggestionsService TopicService
+@inject IToastService ToastService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Topic Suggestions</PageTitle>
+
+<h3>Topic Suggestions</h3>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="ShowCreateModal">Suggest a Topic</button>
+</div>
+
+@if (_suggestions is null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (_suggestions.Count == 0)
+{
+    <div class="alert alert-info">No topic suggestions yet. Be the first to suggest one!</div>
+}
+else
+{
+    <div class="row row-cols-1 g-3">
+        @foreach (var topic in _suggestions)
+        {
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="card-title">@topic.Title</h5>
+                                @if (!string.IsNullOrEmpty(topic.Description))
+                                {
+                                    <p class="card-text">@topic.Description</p>
+                                }
+                                <div class="text-muted small">
+                                    <span>Suggested by: @topic.SuggestedByName</span>
+                                    @if (!string.IsNullOrEmpty(topic.VolunteerName))
+                                    {
+                                        <span class="ms-3 badge bg-success">Volunteer: @topic.VolunteerName</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column align-items-end gap-2">
+                                <div class="d-flex gap-2">
+                                    <button class="btn @GetVoteButtonClass(topic)"
+                                            @onclick="() => ToggleVote(topic)"
+                                            disabled="@_votingTopicId.Contains(topic.Id)">
+                                        @if (_votingTopicId.Contains(topic.Id))
+                                        {
+                                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                                        }
+                                        else
+                                        {
+                                            <span>@topic.VoteCount @(topic.HasVoted ? "Voted" : "Vote")</span>
+                                        }
+                                    </button>
+
+                                    @if (topic.VolunteerUserId is null)
+                                    {
+                                        <button class="btn btn-outline-success"
+                                                @onclick="() => Volunteer(topic)"
+                                                disabled="@_volunteeringTopicId.Contains(topic.Id)">
+                                            @if (_volunteeringTopicId.Contains(topic.Id))
+                                            {
+                                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                            }
+                                            else
+                                            {
+                                                <span>Volunteer</span>
+                                            }
+                                        </button>
+                                    }
+                                </div>
+
+                                @if (topic.SuggestedByUserId == _currentUserId || _isAdmin)
+                                {
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            @onclick="() => ConfirmDelete(topic)"
+                                            disabled="@_deletingTopicId.Contains(topic.Id)">
+                                        @if (_deletingTopicId.Contains(topic.Id))
+                                        {
+                                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                                        }
+                                        else
+                                        {
+                                            <span>Delete</span>
+                                        }
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@if (_showCreateModal)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Suggest a Topic</h5>
+                    <button type="button" class="btn-close" @onclick="HideCreateModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Title *</label>
+                        <input type="text" class="form-control" @bind="_newTopic.Title" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" rows="4" @bind="_newTopic.Description"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideCreateModal">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="CreateTopic" disabled="@_isCreating">
+                        @if (_isCreating)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                            <span class="ms-1">Saving...</span>
+                        }
+                        else
+                        {
+                            <span>Submit</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_topicToDelete is not null)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong>@_topicToDelete.Title</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteConfirmed">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<TopicSuggestionDto>? _suggestions;
+    private int _currentUserId;
+    private bool _isAdmin;
+    private bool _showCreateModal;
+    private CreateSuggestionDto _newTopic = new();
+    private bool _isCreating;
+    private HashSet<int> _votingTopicId = new();
+    private HashSet<int> _volunteeringTopicId = new();
+    private HashSet<int> _deletingTopicId = new();
+    private TopicSuggestionDto? _topicToDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var uid))
+        {
+            _currentUserId = uid;
+        }
+        _isAdmin = user.IsInRole("Admin");
+
+        await LoadTopics();
+    }
+
+    private async Task LoadTopics()
+    {
+        try
+        {
+            _suggestions = await TopicService.GetAllSuggestionsAsync();
+        }
+        catch
+        {
+            ToastService.ShowError("Failed to load topic suggestions.");
+        }
+    }
+
+    private void ShowCreateModal()
+    {
+        _newTopic = new CreateSuggestionDto();
+        _showCreateModal = true;
+    }
+
+    private void HideCreateModal()
+    {
+        _showCreateModal = false;
+    }
+
+    private async Task CreateTopic()
+    {
+        if (string.IsNullOrWhiteSpace(_newTopic.Title))
+        {
+            ToastService.ShowError("Title is required.");
+            return;
+        }
+
+        _isCreating = true;
+        try
+        {
+            var topic = await TopicService.CreateSuggestionAsync(_newTopic);
+            _suggestions?.Insert(0, topic);
+            _showCreateModal = false;
+            ToastService.ShowSuccess("Topic suggestion created successfully.");
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            _isCreating = false;
+        }
+    }
+
+    private string GetVoteButtonClass(TopicSuggestionDto topic) =>
+        topic.HasVoted ? "btn-success" : "btn-outline-primary";
+
+    private async Task ToggleVote(TopicSuggestionDto topic)
+    {
+        _votingTopicId.Add(topic.Id);
+        try
+        {
+            var result = await TopicService.VoteAsync(topic.Id);
+            topic.HasVoted = result.HasVoted;
+            topic.VoteCount = result.VoteCount;
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            _votingTopicId.Remove(topic.Id);
+        }
+    }
+
+    private async Task Volunteer(TopicSuggestionDto topic)
+    {
+        _volunteeringTopicId.Add(topic.Id);
+        try
+        {
+            var result = await TopicService.VolunteerAsync(topic.Id);
+            topic.VolunteerUserId = result.VolunteerUserId;
+            topic.VolunteerName = result.VolunteerName;
+            ToastService.ShowSuccess("You have volunteered for this topic!");
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            _volunteeringTopicId.Remove(topic.Id);
+        }
+    }
+
+    private void ConfirmDelete(TopicSuggestionDto topic)
+    {
+        _topicToDelete = topic;
+    }
+
+    private void CancelDelete()
+    {
+        _topicToDelete = null;
+    }
+
+    private async Task DeleteConfirmed()
+    {
+        if (_topicToDelete is null) return;
+
+        _deletingTopicId.Add(_topicToDelete.Id);
+        try
+        {
+            var success = await TopicService.DeleteSuggestionAsync(_topicToDelete.Id);
+            if (success)
+            {
+                _suggestions?.Remove(_topicToDelete);
+                ToastService.ShowSuccess("Topic deleted successfully.");
+            }
+            else
+            {
+                ToastService.ShowError("Failed to delete topic.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            _deletingTopicId.Remove(_topicToDelete.Id);
+            _topicToDelete = null;
+        }
+    }
+}

@@ -13,6 +13,7 @@
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" />
     <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
+    <PackageReference Include="Markdig" />
   </ItemGroup>
 
   <ItemGroup>

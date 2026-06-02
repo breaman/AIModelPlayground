@@ -1,6 +1,68 @@
 @page "/"
-<h3>Home</h3>
 
-<p>Welcome to your homepage</p>
-<p>With hot reload? Why did it think that worked for some reason?</p>
-<p>Now do I have hot reload?</p>
+@using UserGroupSiteKimiK26.Shared.Dtos
+@using UserGroupSiteKimiK26.Shared.Services
+
+@inject IEventsService EventsService
+@inject NavigationManager Navigation
+
+<PageTitle>Home</PageTitle>
+
+<div class="text-center mb-4">
+    <h1>Technical User Group</h1>
+    <p class="lead">Upcoming and past meetings, talks, and community events.</p>
+</div>
+
+@if (_events is null)
+{
+    <div class="d-flex justify-content-center mt-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading events...</span>
+        </div>
+    </div>
+}
+else if (_events.Count == 0)
+{
+    <div class="alert alert-info text-center">
+        <h4>No events yet</h4>
+        <p>Check back soon for upcoming meetings!</p>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @foreach (var evt in _events)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@evt.Title</h5>
+                        <p class="card-text text-muted">@(evt.ShortDescription ?? "No description provided.")</p>
+                        <ul class="list-unstyled mb-3">
+                            <li><span class="badge bg-primary me-2">Date</span>@(evt.EventDate?.ToString("f") ?? "TBD")</li>
+                            <li><span class="badge bg-secondary me-2">Location</span>@(evt.Location ?? "TBD")</li>
+                            <li><span class="badge bg-info me-2">Speakers</span>@(string.Join(", ", evt.Speakers.Select(s => $"{s.FirstName} {s.LastName}")))</li>
+                        </ul>
+                        <a href="/events/@evt.Slug" class="btn btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<EventListItemDto>? _events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _events = await EventsService.GetPublishedEventsAsync();
+        }
+        catch
+        {
+            _events = [];
+        }
+    }
+}

@@ -1,0 +1,205 @@
+@page "/admin/events/new"
+@page "/admin/events/edit/{Id:int}"
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveWebAssembly
+
+@using UserGroupSiteKimiK26.Shared.Dtos
+@using UserGroupSiteKimiK26.Shared.Services
+@using UserGroupSiteKimiK26.Client.Components
+
+@inject IEventsService EventsService
+@inject HttpClient HttpClient
+@inject NavigationManager Navigation
+@inject IToastService ToastService
+
+<PageTitle>@(IsNew ? "New Event" : "Edit Event")</PageTitle>
+
+<h3>@(IsNew ? "New Event" : "Edit Event")</h3>
+
+<EditForm Model="_dto" OnValidSubmit="SaveAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="alert alert-danger" />
+
+    @if (_errors.Count > 0)
+    {
+        <div class="alert alert-danger">
+            <ul>
+                @foreach (var error in _errors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="mb-3">
+        <label class="form-label">Title *</label>
+        <InputText class="form-control" @bind-Value="_dto.Title" @onblur="AutoGenerateSlug" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Slug *</label>
+        <InputText class="form-control" @bind-Value="_dto.Slug" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Short Description</label>
+        <InputTextArea class="form-control" @bind-Value="_dto.ShortDescription" rows="3" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <MarkdownEditor @bind-Value="_dto.Description" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Date/Time</label>
+        <InputDate Type="InputDateType.DateTimeLocal" class="form-control" @bind-Value="_dto.EventDate" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Location</label>
+        <InputText class="form-control" @bind-Value="_dto.Location" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Speakers</label>
+        @if (_speakers is null)
+        {
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        }
+        else
+        {
+            <div class="border rounded p-2">
+                @foreach (var speaker in _speakers)
+                {
+                    <div class="form-check">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               id="speaker-@speaker.Id"
+                               checked="@(_dto.SpeakerIds.Contains(speaker.Id))"
+                               @onchange="e => ToggleSpeaker(speaker.Id, (bool)e.Value!)" />
+                        <label class="form-check-label" for="speaker-@speaker.Id">
+                            @(speaker.FirstName) @(speaker.LastName) (@speaker.Email)
+                        </label>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="mb-3 form-check">
+        <InputCheckbox class="form-check-input" @bind-Value="_dto.IsPublished" />
+        <label class="form-check-label">Published</label>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary" disabled="@_isSaving">
+            @if (_isSaving)
+            {
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span class="ms-1">Saving...</span>
+            }
+            else
+            {
+                <span>Save</span>
+            }
+        </button>
+        <a href="/admin/events" class="btn btn-secondary">Cancel</a>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private bool IsNew => Id is null;
+    private EventDto _dto = new();
+    private List<SpeakerDto>? _speakers;
+    private List<string> _errors = [];
+    private bool _isSaving;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _speakers = await HttpClient.GetFromJsonAsync<List<SpeakerDto>>("api/speakers") ?? [];
+
+        if (!IsNew)
+        {
+            var evt = await EventsService.GetEventByIdAsync(Id!.Value);
+            if (evt is null)
+            {
+                ToastService.ShowError("Event not found.");
+                Navigation.NavigateTo("/admin/events");
+                return;
+            }
+            _dto = evt;
+        }
+    }
+
+    private void AutoGenerateSlug()
+    {
+        if (!string.IsNullOrWhiteSpace(_dto.Slug)) return;
+        _dto.Slug = ToKebabCase(_dto.Title);
+    }
+
+    private void ToggleSpeaker(int speakerId, bool isChecked)
+    {
+        if (isChecked && !_dto.SpeakerIds.Contains(speakerId))
+        {
+            _dto.SpeakerIds.Add(speakerId);
+        }
+        else if (!isChecked && _dto.SpeakerIds.Contains(speakerId))
+        {
+            _dto.SpeakerIds.Remove(speakerId);
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        _isSaving = true;
+        _errors = [];
+        try
+        {
+            var (success, errors) = IsNew
+                ? await EventsService.CreateEventAsync(_dto)
+                : await EventsService.UpdateEventAsync(Id!.Value, _dto);
+
+            if (success)
+            {
+                ToastService.ShowSuccess($"Event '{_dto.Title}' saved successfully.");
+                Navigation.NavigateTo("/admin/events");
+            }
+            else
+            {
+                _errors = errors;
+                ToastService.ShowError("Please fix the validation errors.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private static string ToKebabCase(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return "";
+        var cleaned = new System.Text.StringBuilder();
+        foreach (var c in input.Trim().ToLowerInvariant())
+        {
+            if (char.IsLetterOrDigit(c))
+                cleaned.Append(c);
+            else if (c == ' ' || c == '-')
+            {
+                if (cleaned.Length > 0 && cleaned[^1] != '-')
+                    cleaned.Append('-');
+            }
+        }
+        return cleaned.ToString().Trim('-');
+    }
+}

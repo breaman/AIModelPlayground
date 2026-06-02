@@ -1,0 +1,101 @@
+@page "/events/{Slug}"
+
+@using UserGroupSiteKimiK26.Shared.Dtos
+@using UserGroupSiteKimiK26.Shared.Services
+
+@inject IEventsService EventsService
+@inject NavigationManager Navigation
+
+<PageTitle>@(_event?.Title ?? "Event Details")</PageTitle>
+
+@if (_isLoading)
+{
+    <div class="d-flex justify-content-center mt-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading event...</span>
+        </div>
+    </div>
+}
+else if (_event is null)
+{
+    <div class="alert alert-warning text-center">
+        <h4>Event not found</h4>
+        <p>The event you are looking for does not exist or has been removed.</p>
+        <a href="/" class="btn btn-primary">Back to Home</a>
+    </div>
+}
+else
+{
+    <div class="mb-3">
+        <a href="/" class="btn btn-outline-secondary btn-sm">← Back to Events</a>
+    </div>
+
+    <article>
+        <h1>@_event.Title</h1>
+
+        <div class="d-flex flex-wrap gap-3 mb-3 text-muted">
+            @if (_event.EventDate is not null)
+            {
+                <div><i class="bi bi-calendar-event"></i> @_event.EventDate.Value.ToString("f")</div>
+            }
+            @if (!string.IsNullOrEmpty(_event.Location))
+            {
+                <div><i class="bi bi-geo-alt"></i> @_event.Location</div>
+            }
+        </div>
+
+        @if (!string.IsNullOrEmpty(_event.ShortDescription))
+        {
+            <p class="lead">@_event.ShortDescription</p>
+        }
+
+        @if (_event.Speakers.Count > 0)
+        {
+            <div class="mb-3">
+                <strong>Speakers:</strong>
+                <ul class="list-inline">
+                    @foreach (var speaker in _event.Speakers)
+                    {
+                        <li class="list-inline-item badge bg-light text-dark border">@(speaker.FirstName) @(speaker.LastName)</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(_event.Description))
+        {
+            <hr />
+            <div class="markdown-body">
+                @((MarkupString)_descriptionHtml)
+            </div>
+        }
+    </article>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = "";
+
+    private EventListItemDto? _event;
+    private string _descriptionHtml = "";
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _event = await EventsService.GetEventBySlugAsync(Slug);
+            if (_event?.Description is not null)
+            {
+                _descriptionHtml = Markdig.Markdown.ToHtml(_event.Description);
+            }
+        }
+        catch
+        {
+            _event = null;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

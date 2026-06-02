@@ -1,0 +1,103 @@
+@using System.Net.Http.Json
+
+@inject HttpClient HttpClient
+
+<div class="markdown-editor">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button type="button"
+                    class="nav-link @(_activeTab == "edit" ? "active" : "")"
+                    @onclick="ActivateEditTab">Edit</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button type="button"
+                    class="nav-link @(_activeTab == "preview" ? "active" : "")"
+                    @onclick="ActivatePreviewTab">Preview</button>
+        </li>
+    </ul>
+    <div class="tab-content border border-top-0 p-3">
+        @if (_activeTab == "edit")
+        {
+            <textarea class="form-control"
+                      rows="10"
+                      @bind="_localValue"
+                      @bind:event="oninput"
+                      placeholder="Enter Markdown here..."></textarea>
+        }
+        else
+        {
+            @if (_isPreviewLoading)
+            {
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                </div>
+            }
+            else
+            {
+                <div class="markdown-preview">
+                    @((MarkupString)_previewHtml)
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private string _localValue = "";
+    private string _activeTab = "edit";
+    private string _previewHtml = "";
+    private bool _isPreviewLoading;
+
+    [Parameter]
+    public string Value { get; set; } = "";
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (_localValue != Value)
+        {
+            _localValue = Value;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender && _localValue != Value)
+        {
+            await ValueChanged.InvokeAsync(_localValue);
+        }
+    }
+
+    private void ActivateEditTab()
+    {
+        _activeTab = "edit";
+    }
+
+    private async Task ActivatePreviewTab()
+    {
+        _activeTab = "preview";
+        _isPreviewLoading = true;
+        try
+        {
+            var response = await HttpClient.PostAsJsonAsync("api/markdown/preview", new { markdown = _localValue });
+            if (response.IsSuccessStatusCode)
+            {
+                _previewHtml = await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                _previewHtml = "<p class='text-danger'>Failed to load preview.</p>";
+            }
+        }
+        catch
+        {
+            _previewHtml = "<p class='text-danger'>Failed to load preview.</p>";
+        }
+        finally
+        {
+            _isPreviewLoading = false;
+        }
+    }
+}

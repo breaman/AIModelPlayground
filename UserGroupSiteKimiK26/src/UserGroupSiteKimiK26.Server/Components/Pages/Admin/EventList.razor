@@ -1,0 +1,166 @@
+@page "/admin/events"
+@attribute [Authorize(Roles = "Admin,Speaker")]
+@rendermode InteractiveWebAssembly
+
+@using UserGroupSiteKimiK26.Shared.Dtos
+@using UserGroupSiteKimiK26.Shared.Services
+
+@inject IEventsService EventsService
+@inject NavigationManager Navigation
+@inject IToastService ToastService
+
+<PageTitle>Event Management</PageTitle>
+
+<h3>Event Management</h3>
+
+<div class="mb-3">
+    <a href="/admin/events/new" class="btn btn-primary">New Event</a>
+</div>
+
+@if (_events is null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (_events.Count == 0)
+{
+    <div class="alert alert-info">No events found.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var evt in _events)
+            {
+                <tr>
+                    <td>@evt.Title</td>
+                    <td>@(evt.EventDate?.ToString("g") ?? "—")</td>
+                    <td>@(evt.Location ?? "—")</td>
+                    <td>
+                        @if (evt.IsPublished)
+                        {
+                            <span class="badge bg-success">Published</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Draft</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary me-1" @onclick="() => EditEvent(evt.Id)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDelete(evt)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (_eventToDelete is not null)
+{
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="CancelDelete"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong>@_eventToDelete.Title</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="DeleteConfirmed" disabled="@_isDeleting">
+                        @if (_isDeleting)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                        }
+                        else
+                        {
+                            <span>Delete</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<EventListItemDto>? _events;
+    private EventListItemDto? _eventToDelete;
+    private bool _isDeleting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvents();
+    }
+
+    private async Task LoadEvents()
+    {
+        try
+        {
+            _events = await EventsService.GetEditableEventsForUserAsync();
+        }
+        catch
+        {
+            ToastService.ShowError("Failed to load events.");
+        }
+    }
+
+    private void EditEvent(int id)
+    {
+        Navigation.NavigateTo($"/admin/events/edit/{id}");
+    }
+
+    private void ConfirmDelete(EventListItemDto evt)
+    {
+        _eventToDelete = evt;
+    }
+
+    private void CancelDelete()
+    {
+        _eventToDelete = null;
+    }
+
+    private async Task DeleteConfirmed()
+    {
+        if (_eventToDelete is null) return;
+
+        _isDeleting = true;
+        try
+        {
+            var success = await EventsService.DeleteEventAsync(_eventToDelete.Id);
+            if (success)
+            {
+                ToastService.ShowSuccess("Event deleted successfully.");
+                _events?.Remove(_eventToDelete);
+            }
+            else
+            {
+                ToastService.ShowError("Failed to delete event.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.Message);
+        }
+        finally
+        {
+            _isDeleting = false;
+            _eventToDelete = null;
+        }
+    }
+}
