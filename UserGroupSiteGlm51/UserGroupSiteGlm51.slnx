@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/aspire/">
+    <Project Path="aspire/UserGroupSiteGlm51.AppHost/UserGroupSiteGlm51.AppHost.csproj" />
+    <Project Path="aspire/UserGroupSiteGlm51.ServiceDefaults/UserGroupSiteGlm51.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".config\dotnet-tools.json" />
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/UserGroupSiteGlm51.Client/UserGroupSiteGlm51.Client.csproj" />
+    <Project Path="src/UserGroupSiteGlm51.Data/UserGroupSiteGlm51.Data.csproj" />
+    <Project Path="src/UserGroupSiteGlm51.Server/UserGroupSiteGlm51.Server.csproj" />
+    <Project Path="src/UserGroupSiteGlm51.Shared/UserGroupSiteGlm51.Shared.csproj" />
+  </Folder>
+</Solution>
