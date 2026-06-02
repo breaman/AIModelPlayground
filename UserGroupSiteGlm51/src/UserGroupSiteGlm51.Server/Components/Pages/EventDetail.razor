@@ -1,0 +1,88 @@
+@page "/events/{Slug}"
+@using UserGroupSiteGlm51.Data.Models
+
+@if (EventItem is null)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-lg-8">
+            <h1>@EventItem.Title</h1>
+
+            @if (EventItem.EventDate.HasValue)
+            {
+                <p class="text-muted">
+                    <span class="bi bi-calendar" aria-hidden="true"></span>
+                    @EventItem.EventDate.Value.LocalDateTime.ToString("dddd, MMMM dd, yyyy h:mm tt")
+                </p>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(EventItem.Location))
+            {
+                <p class="text-muted">
+                    <span class="bi bi-geo-alt" aria-hidden="true"></span>
+                    @EventItem.Location
+                </p>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(EventItem.ShortDescription))
+            {
+                <p class="lead">@EventItem.ShortDescription</p>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(EventItem.Description))
+            {
+                <div class="mt-4">
+                    @((MarkupString)EventItem.Description)
+                </div>
+            }
+
+            @if (EventItem.EventSpeakers.Any())
+            {
+                <div class="mt-4">
+                    <h3>Speakers</h3>
+                    <ul class="list-unstyled">
+                        @foreach (var speaker in EventItem.EventSpeakers)
+                        {
+                            <li>
+                                <span class="bi bi-person" aria-hidden="true"></span>
+                                @speaker.User.FirstName @speaker.User.LastName
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Event Details</h5>
+                    <ul class="list-unstyled">
+                        @if (EventItem.EventDate.HasValue)
+                        {
+                            <li><strong>Date:</strong> @EventItem.EventDate.Value.LocalDateTime.ToString("MMM dd, yyyy")</li>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(EventItem.Location))
+                        {
+                            <li><strong>Location:</strong> @EventItem.Location</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            @if (CanEdit)
+            {
+                <a href="/admin/events/@EventItem.Id/edit" class="btn btn-outline-primary mt-2 w-100">
+                    <span class="bi bi-pencil" aria-hidden="true"></span> Edit Event
+                </a>
+            }
+        </div>
+    </div>
+}

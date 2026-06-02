@@ -6,6 +6,8 @@ using UserGroupSiteGlm51.Data.Models;
 using UserGroupSiteGlm51.Server.Components;
 using UserGroupSiteGlm51.Server.Components.Account;
 using UserGroupSiteGlm51.Server.Components.Email;
+using UserGroupSiteGlm51.Server.Data;
+using UserGroupSiteGlm51.Server.Endpoints;
 using UserGroupSiteGlm51.Server.Services;
 using UserGroupSiteGlm51.ServiceDefaults;
 using UserGroupSiteGlm51.Shared.Services;
@@ -50,7 +52,10 @@ try
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
         .AddIdentityCookies();
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    });
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
@@ -81,6 +86,11 @@ try
     builder.Services.AddSingleton<IEmailSender<User>, IdentityNoOpEmailSender>();
     builder.Services.AddScoped<IUserService, HttpUserService>();
     builder.Services.AddScoped<IToastService, ToastService>();
+
+    // Register application services (server-side implementations)
+    builder.Services.AddScoped<IEventService, UserGroupSiteGlm51.Server.Services.EventService>();
+    builder.Services.AddScoped<ITopicSuggestionService, UserGroupSiteGlm51.Server.Services.TopicSuggestionService>();
+    builder.Services.AddScoped<IUserManagementService, UserGroupSiteGlm51.Server.Services.UserManagementService>();
 
     // Add route configuration to enforce lowercase URLs for better SEO
     builder.Services.Configure<RouteOptions>(options =>
@@ -121,6 +131,15 @@ try
         .AddAdditionalAssemblies(typeof(UserGroupSiteGlm51.Client._Imports).Assembly);
 
     app.MapAdditionalIdentityEndpoints();
+
+    // Map custom API endpoints
+    app.MapEventEndpoints();
+    app.MapTopicEndpoints();
+    app.MapUserManagementEndpoints();
+    app.MapMarkdownEndpoints();
+
+    // Seed roles and default admin user
+    await SeedData.SeedAsync(app.Services, app.Environment.IsDevelopment());
 
     app.Run();
 }

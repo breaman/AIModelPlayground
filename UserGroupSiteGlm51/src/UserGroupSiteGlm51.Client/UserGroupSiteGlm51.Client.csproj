@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UserGroupSiteGlm51.Shared\UserGroupSiteGlm51.Shared.csproj" />
+    <ProjectReference Include="..\UserGroupSiteGlm51.Data\UserGroupSiteGlm51.Data.csproj" />
   </ItemGroup>
 
 </Project>

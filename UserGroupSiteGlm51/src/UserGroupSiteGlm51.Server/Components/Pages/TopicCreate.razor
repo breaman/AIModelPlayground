@@ -1,0 +1,28 @@
+@page "/topics/new"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@using UserGroupSiteGlm51.Client.Components
+
+<h1 class="mb-4">Suggest a Topic</h1>
+
+<EditForm Model="Model" OnValidSubmit="HandleValidSubmit" FormName="TopicCreateForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="text-danger mb-3" />
+
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="Model.Title" id="title" class="form-control" placeholder="Topic title" />
+        <label for="title">Title</label>
+        <ValidationMessage For="() => Model.Title" class="text-danger" />
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Description (Markdown, optional)</label>
+        <MarkdownEditor @bind-Value="Model.Description" id="description" />
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">
+            <span class="bi bi-check-circle" aria-hidden="true"></span> Submit Topic
+        </button>
+        <a href="/topics" class="btn btn-outline-secondary ms-2">Cancel</a>
+    </div>
+</EditForm>

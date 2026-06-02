@@ -1,0 +1,48 @@
+@rendermode InteractiveWebAssembly
+@inherits ComponentBase
+
+<div class="markdown-editor">
+    <ul class="nav nav-tabs mb-2">
+        <li class="nav-item">
+            <button type="button" class="nav-link @(ActiveTab == "edit" ? "active" : "")" @onclick="SwitchToEdit">
+                <span class="bi bi-pencil" aria-hidden="true"></span> Edit
+            </button>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="nav-link @(ActiveTab == "preview" ? "active" : "")" @onclick="ShowPreview">
+                <span class="bi bi-eye" aria-hidden="true"></span> Preview
+            </button>
+        </li>
+    </ul>
+
+    @if (ActiveTab == "edit")
+    {
+        <textarea @bind="Value" @bind:event="oninput" @bind:after="OnValueChanged"
+                  id="@Id" class="form-control font-monospace" rows="10"
+                  placeholder="Write your content in Markdown..."></textarea>
+    }
+    else
+    {
+        @if (IsLoadingPreview)
+        {
+            <div class="text-center py-3">
+                <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading preview...</span>
+                </div>
+                <span class="ms-2">Rendering preview...</span>
+            </div>
+        }
+        else if (!string.IsNullOrWhiteSpace(PreviewHtml))
+        {
+            <div class="card">
+                <div class="card-body markdown-content">
+                    @((MarkupString)PreviewHtml)
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-muted py-3">Nothing to preview. Enter some Markdown content.</div>
+        }
+    }
+</div>

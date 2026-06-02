@@ -1,6 +1,63 @@
 @page "/"
-<h3>Home</h3>
+@using UserGroupSiteGlm51.Data.Models
 
-<p>Welcome to your homepage</p>
-<p>With hot reload? Why did it think that worked for some reason?</p>
-<p>Now do I have hot reload?</p>
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Upcoming Events</h1>
+    </div>
+</div>
+
+@if (Events is null)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (!Events.Any())
+{
+    <div class="alert alert-info">
+        <span class="bi bi-calendar-event" aria-hidden="true"></span>
+        No upcoming events yet. Check back soon!
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var ev in Events)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="/events/@ev.Slug" class="text-decoration-none">@ev.Title</a>
+                        </h5>
+                        @if (!string.IsNullOrWhiteSpace(ev.ShortDescription))
+                        {
+                            <p class="card-text text-muted">@ev.ShortDescription</p>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            @if (ev.EventDate.HasValue)
+                            {
+                                <small class="text-muted">
+                                    <span class="bi bi-calendar" aria-hidden="true"></span>
+                                    @ev.EventDate.Value.LocalDateTime.ToString("MMM dd, yyyy h:mm tt")
+                                </small>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(ev.Location))
+                            {
+                                <small class="text-muted">
+                                    <span class="bi bi-geo-alt" aria-hidden="true"></span>
+                                    @ev.Location
+                                </small>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -13,12 +13,14 @@
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" />
     <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
+    <PackageReference Include="Markdig" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\aspire\UserGroupSiteGlm51.ServiceDefaults\UserGroupSiteGlm51.ServiceDefaults.csproj" />
     <ProjectReference Include="..\UserGroupSiteGlm51.Client\UserGroupSiteGlm51.Client.csproj" />
     <ProjectReference Include="..\UserGroupSiteGlm51.Data\UserGroupSiteGlm51.Data.csproj" />
+    <ProjectReference Include="..\UserGroupSiteGlm51.Shared\UserGroupSiteGlm51.Shared.csproj" />
   </ItemGroup>
 
   <Target Name="CopyBootstrapJs" BeforeTargets="Build">

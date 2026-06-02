@@ -1,0 +1,116 @@
+@page "/admin/events/new"
+@page "/admin/events/{Id:int}/edit"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@using UserGroupSiteGlm51.Data.Models
+@using UserGroupSiteGlm51.Client.Components
+
+<h1 class="mb-4">@(IsNew ? "Create Event" : "Edit Event")</h1>
+
+@if (IsLoading)
+{
+    <div class="text-center py-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <EditForm Model="EditModel" OnValidSubmit="HandleValidSubmit" FormName="EventEditForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger mb-3" />
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="EditModel.Title" id="title" class="form-control" placeholder="Event title" @onblur="AutoGenerateSlug" />
+                    <label for="title">Title</label>
+                    <ValidationMessage For="() => EditModel.Title" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="EditModel.Slug" id="slug" class="form-control" placeholder="url-friendly-slug" />
+                    <label for="slug">Slug (URL-friendly identifier)</label>
+                    <ValidationMessage For="() => EditModel.Slug" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="EditModel.ShortDescription" id="shortDescription" class="form-control" placeholder="Brief description" />
+                    <label for="shortDescription">Short Description</label>
+                    <ValidationMessage For="() => EditModel.ShortDescription" class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description (Markdown)</label>
+                    <MarkdownEditor @bind-Value="EditModel.Description" id="description" />
+                    <ValidationMessage For="() => EditModel.Description" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="EditModel.EventDateString" id="eventDate" class="form-control" placeholder="yyyy-MM-ddTHH:mm" type="datetime-local" />
+                    <label for="eventDate">Event Date & Time</label>
+                    <ValidationMessage For="() => EditModel.EventDateString" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="EditModel.Location" id="location" class="form-control" placeholder="Event location" />
+                    <label for="location">Location</label>
+                    <ValidationMessage For="() => EditModel.Location" class="text-danger" />
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Publishing</h5>
+                        <div class="form-check form-switch">
+                            <InputCheckbox @bind-Value="EditModel.IsPublished" id="isPublished" class="form-check-input" />
+                            <label class="form-check-label" for="isPublished">Published</label>
+                        </div>
+                        @if (PublishErrors.Any())
+                        {
+                            <div class="mt-2">
+                                @foreach (var error in PublishErrors)
+                                {
+                                    <small class="text-danger d-block">@error</small>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Speakers</h5>
+                        @if (AvailableSpeakers.Any())
+                        {
+                            @foreach (var speaker in AvailableSpeakers)
+                            {
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="speaker-@speaker.UserId"
+                                           checked="@EditModel.SpeakerIds.Contains(speaker.UserId)"
+                                           @onchange="(e) => ToggleSpeaker(speaker.UserId, (bool)(e.Value ?? false))" />
+                                    <label class="form-check-label" for="speaker-@speaker.UserId">
+                                        @speaker.FirstName @speaker.LastName
+                                    </label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <small class="text-muted">No speakers available. Assign users to the Speaker role first.</small>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">
+                <span class="bi bi-check-circle" aria-hidden="true"></span>
+                @(IsNew ? "Create Event" : "Save Changes")
+            </button>
+            <a href="/admin/events" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </div>
+    </EditForm>
+}
