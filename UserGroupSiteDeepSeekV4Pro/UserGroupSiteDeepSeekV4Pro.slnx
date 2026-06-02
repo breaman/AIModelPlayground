@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/aspire/">
+    <Project Path="aspire/UserGroupSiteDeepSeekV4Pro.AppHost/UserGroupSiteDeepSeekV4Pro.AppHost.csproj" />
+    <Project Path="aspire/UserGroupSiteDeepSeekV4Pro.ServiceDefaults/UserGroupSiteDeepSeekV4Pro.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".config\dotnet-tools.json" />
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/UserGroupSiteDeepSeekV4Pro.Client/UserGroupSiteDeepSeekV4Pro.Client.csproj" />
+    <Project Path="src/UserGroupSiteDeepSeekV4Pro.Data/UserGroupSiteDeepSeekV4Pro.Data.csproj" />
+    <Project Path="src/UserGroupSiteDeepSeekV4Pro.Server/UserGroupSiteDeepSeekV4Pro.Server.csproj" />
+    <Project Path="src/UserGroupSiteDeepSeekV4Pro.Shared/UserGroupSiteDeepSeekV4Pro.Shared.csproj" />
+  </Folder>
+</Solution>

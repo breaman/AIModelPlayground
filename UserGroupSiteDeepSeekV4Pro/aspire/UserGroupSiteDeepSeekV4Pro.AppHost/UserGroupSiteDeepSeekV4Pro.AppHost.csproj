@@ -1,0 +1,19 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.3.3">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.EntityFrameworkCore" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\UserGroupSiteDeepSeekV4Pro.Data\UserGroupSiteDeepSeekV4Pro.Data.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteDeepSeekV4Pro.Server\UserGroupSiteDeepSeekV4Pro.Server.csproj" />
+    <ProjectReference Include="..\UserGroupSiteDeepSeekV4Pro.ServiceDefaults\UserGroupSiteDeepSeekV4Pro.ServiceDefaults.csproj" IsAspireProjectResource="false" />
+  </ItemGroup>
+
+</Project>
