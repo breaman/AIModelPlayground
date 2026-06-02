@@ -51,10 +51,12 @@ If a user is logged in
 all of these commands were run using claude code in order to try to keep the "test harness" as consistent as possible. The template has their own set of "skills" so those were consistent across everyone. Also the following 3 tools were added to the cli runner: Context7, Microsoft Learn, GitHub Integration
 
 Code structured in the following branch proposal (this may change as I wrie things)
-- 1-deepseek-v4
+- 1-deepseek-v4 - due to an issue with claude and deepseek, had to run copilot cli instead for this one. the breaman.blazor template was already configured for copilot cli as well, which is why that was chosen
   - create a UserGroupSiteDeepSeekV4Pro directory
+  - type `export COPILOT_PROVIDER_MAX_PROMPT_TOKENS=840000`
+  - type `export COPILOT_PROVIDER_MAX_OUTPUT_TOKENS=128000`
   - navigate to the directory and type `dotnet new breaman.blazor`
-  - launched with `ollama launch claude --model deepseek-v4-pro:cloud`
+  - launched with `ollama launch copilot --model deepseek-v4-pro:cloud`
   - hit `shift-tab` to put it into `accept edits on` mode
   - pasted the above prompt into the command line
   - once the plan was created, ran `/clear` to clear out the session
