@@ -1,0 +1,52 @@
+@page "/events"
+
+<PageTitle>Events</PageTitle>
+
+<h1>Upcoming events</h1>
+
+@if (_events is null)
+{
+    <p aria-live="polite"><em>Loading…</em></p>
+}
+else if (_events.Count == 0)
+{
+    <div class="alert alert-info">No upcoming events. Check back soon!</div>
+}
+else
+{
+    <ul class="list-unstyled">
+        @foreach (var ev in _events)
+        {
+            <li class="card mb-3">
+                <div class="card-body">
+                    <h2 class="card-title h5">
+                        <a href="/events/@ev.Slug" class="text-decoration-none">@ev.Title</a>
+                    </h2>
+                    <p class="card-subtitle text-muted mb-2">
+                        <span class="me-3">
+                            <i class="bi bi-calendar3" aria-hidden="true"></i>
+                            @ev.EventDateTime.ToLocalTime().ToString("dddd, MMMM d, yyyy h:mm tt")
+                        </span>
+                        @if (!string.IsNullOrWhiteSpace(ev.Location))
+                        {
+                            <span>
+                                <i class="bi bi-geo-alt" aria-hidden="true"></i> @ev.Location
+                            </span>
+                        }
+                    </p>
+                    @if (!string.IsNullOrWhiteSpace(ev.ShortDescription))
+                    {
+                        <p class="card-text">@ev.ShortDescription</p>
+                    }
+                    @if (ev.SpeakerNames.Count > 0)
+                    {
+                        <p class="card-text text-muted">
+                            <i class="bi bi-mic" aria-hidden="true"></i> Speakers: @string.Join(", ", ev.SpeakerNames)
+                        </p>
+                    }
+                    <a href="/events/@ev.Slug" class="btn btn-sm btn-outline-primary">View details</a>
+                </div>
+            </li>
+        }
+    </ul>
+}

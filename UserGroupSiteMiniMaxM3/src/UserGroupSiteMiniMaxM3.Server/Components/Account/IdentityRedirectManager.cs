@@ -1,7 +1,7 @@
-using UserGroupSiteMiniMaxM3.Data.Models;
-
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
+
+using UserGroupSiteMiniMaxM3.Data.Models;
 
 namespace UserGroupSiteMiniMaxM3.Server.Components.Account;
 

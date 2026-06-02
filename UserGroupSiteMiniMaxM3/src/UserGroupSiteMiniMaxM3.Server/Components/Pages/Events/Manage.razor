@@ -1,0 +1,60 @@
+@page "/events/manage"
+@attribute [Authorize]
+
+<PageTitle>Manage events</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Manage events</h1>
+    <a href="/events/manage/new" class="btn btn-primary">Create new event</a>
+</div>
+
+@if (_events is null)
+{
+    <p><em>Loading…</em></p>
+}
+else if (_events.Count == 0)
+{
+    <div class="alert alert-info">
+        You have no events to manage.
+        <a href="/topics" class="alert-link">Suggest a topic</a> or create one above.
+    </div>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date/Time</th>
+                <th>Published</th>
+                <th>Speakers</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ev in _events)
+            {
+                <tr>
+                    <td>
+                        <a href="/events/@ev.Slug" target="_blank">@ev.Title</a>
+                    </td>
+                    <td>@ev.EventDateTime.ToLocalTime().ToString("yyyy-MM-dd h:mm tt")</td>
+                    <td>
+                        @if (ev.IsPublished)
+                        {
+                            <span class="badge bg-success">Published</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Draft</span>
+                        }
+                    </td>
+                    <td>@ev.SpeakerNames.Count</td>
+                    <td class="text-end">
+                        <a href="/events/manage/@ev.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

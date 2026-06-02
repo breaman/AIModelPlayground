@@ -1,8 +1,8 @@
-using UserGroupSiteMiniMaxM3.Data.Interfaces;
-
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+using UserGroupSiteMiniMaxM3.Data.Interfaces;
 
 namespace UserGroupSiteMiniMaxM3.Data.Models;
 

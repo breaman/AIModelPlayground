@@ -1,19 +1,21 @@
 using System.Diagnostics;
 
-using UserGroupSiteMiniMaxM3.Client.Services;
-using UserGroupSiteMiniMaxM3.Data.Interfaces;
-using UserGroupSiteMiniMaxM3.Data.Models;
-using UserGroupSiteMiniMaxM3.Server.Components;
-using UserGroupSiteMiniMaxM3.Server.Components.Account;
-using UserGroupSiteMiniMaxM3.Server.Components.Email;
-using UserGroupSiteMiniMaxM3.Server.Services;
-using UserGroupSiteMiniMaxM3.ServiceDefaults;
-using UserGroupSiteMiniMaxM3.Shared.Services;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using Serilog;
+
+using UserGroupSiteMiniMaxM3.Client.Services;
+using UserGroupSiteMiniMaxM3.Data.Interfaces;
+using UserGroupSiteMiniMaxM3.Data.Models;
+using UserGroupSiteMiniMaxM3.Data.Services;
+using UserGroupSiteMiniMaxM3.Server.Components;
+using UserGroupSiteMiniMaxM3.Server.Components.Account;
+using UserGroupSiteMiniMaxM3.Server.Components.Email;
+using UserGroupSiteMiniMaxM3.Server.Endpoints;
+using UserGroupSiteMiniMaxM3.Server.Services;
+using UserGroupSiteMiniMaxM3.ServiceDefaults;
+using UserGroupSiteMiniMaxM3.Shared.Services;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 
@@ -79,8 +81,24 @@ try
         .AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>();
 
     builder.Services.AddSingleton<IEmailSender<User>, IdentityNoOpEmailSender>();
+    builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<IUserService, HttpUserService>();
     builder.Services.AddScoped<IToastService, ToastService>();
+
+    // User admin (server-side, called from server-rendered or WASM components).
+    // Data.Services.IUserAdminService is the EF-aware contract (with self-demotion guard that needs current user id).
+    // Shared.Services.IUserAdminService is the cross-platform contract used by the page via the dual-mode pattern.
+    builder.Services.AddScoped<UserGroupSiteMiniMaxM3.Data.Services.IUserAdminService, UserAdminService>();
+    builder.Services.AddScoped<UserGroupSiteMiniMaxM3.Shared.Services.IUserAdminService, ServerUserAdminService>();
+
+    // Event management
+    builder.Services.AddScoped<EventValidator>();
+    builder.Services.AddScoped<UserGroupSiteMiniMaxM3.Data.Services.IEventService, UserGroupSiteMiniMaxM3.Data.Services.EventService>();
+    builder.Services.AddScoped<UserGroupSiteMiniMaxM3.Data.Services.IUserLookupService, UserGroupSiteMiniMaxM3.Data.Services.UserLookupService>();
+
+    // Topic suggestions
+    builder.Services.AddScoped<UserGroupSiteMiniMaxM3.Data.Services.TopicService>();
+    builder.Services.AddScoped<UserGroupSiteMiniMaxM3.Shared.Services.ITopicService, ServerTopicService>();
 
     // Add route configuration to enforce lowercase URLs for better SEO
     builder.Services.Configure<RouteOptions>(options =>
@@ -121,6 +139,16 @@ try
         .AddAdditionalAssemblies(typeof(UserGroupSiteMiniMaxM3.Client._Imports).Assembly);
 
     app.MapAdditionalIdentityEndpoints();
+    app.MapUserAdminEndpoints();
+    app.MapEventEndpoints();
+    app.MapUserLookupEndpoints();
+    app.MapTopicEndpoints();
+
+    // Seed Identity roles (Admin, Speaker). Idempotent.
+    if (!isMigrations)
+    {
+        await RoleSeeder.SeedAsync(app.Services);
+    }
 
     app.Run();
 }

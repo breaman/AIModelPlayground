@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using UserGroupSiteMiniMaxM3.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteMiniMaxM3.Data.Models;
 
 namespace UserGroupSiteMiniMaxM3.Server.Services;
 

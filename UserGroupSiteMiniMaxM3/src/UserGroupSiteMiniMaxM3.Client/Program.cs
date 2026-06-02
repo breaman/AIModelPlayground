@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+
 using UserGroupSiteMiniMaxM3.Client.Services;
 using UserGroupSiteMiniMaxM3.Shared.Services;
-
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -16,5 +16,7 @@ builder.Services.AddScoped(sp =>
     });
 
 builder.Services.AddScoped<IToastService, ToastService>();
+builder.Services.AddScoped<IUserAdminService, ClientUserAdminService>();
+builder.Services.AddScoped<ITopicService, ClientTopicService>();
 
 await builder.Build().RunAsync();

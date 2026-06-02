@@ -1,0 +1,138 @@
+@page "/events/manage/new"
+@page "/events/manage/{id:int}"
+@attribute [Authorize]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>@(Model.Id == 0 ? "New event" : "Edit event")</PageTitle>
+
+<h1>@(Model.Id == 0 ? "New event" : "Edit event")</h1>
+
+@if (_loadError is not null)
+{
+    <div class="alert alert-danger" role="alert">@_loadError</div>
+}
+
+@if (Model.Id != 0 && _event is null && _loadError is null)
+{
+    <p><em>Loading…</em></p>
+}
+else
+{
+    @if (_errors.Count > 0)
+    {
+        <div class="alert alert-danger" role="alert">
+            <strong>Please correct the following:</strong>
+            <ul class="mb-0">
+                @foreach (var (field, messages) in _errors)
+                {
+                    @foreach (var m in messages)
+                    {
+                        <li>@m</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="form-floating mb-3">
+                <InputText id="Model.Title" @bind-Value="Model.Title" class="form-control" placeholder="Title" />
+                <label for="Model.Title">Title</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText id="Model.Slug" @bind-Value="Model.Slug" class="form-control" placeholder="Slug" @bind-Value:after="OnSlugAfter" />
+                <label for="Model.Slug">Slug</label>
+                <small class="form-text text-muted">URL-friendly identifier. Auto-generated from title until edited.</small>
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputTextArea id="Model.ShortDescription" @bind-Value="Model.ShortDescription" class="form-control" placeholder="Short description" />
+                <label for="Model.ShortDescription">Short description</label>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description (markdown)</label>
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button type="button" class="nav-link @TabClass("edit")"
+                                role="tab" aria-selected="@(ActiveTab == "edit")" @onclick="@(() => SetTab("edit"))">
+                            Edit
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button type="button" class="nav-link @TabClass("preview")"
+                                role="tab" aria-selected="@(ActiveTab == "preview")" @onclick="@(() => SetTab("preview"))">
+                            Preview
+                        </button>
+                    </li>
+                </ul>
+                @if (ActiveTab == "edit")
+                {
+                    <InputTextArea id="Model.Description" @bind-Value="Model.Description" class="form-control font-monospace" rows="10" />
+                }
+                else
+                {
+                    <div class="border p-3 bg-light">
+                        @((MarkupString)_previewHtml)
+                    </div>
+                }
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="datetime-local" id="Model.EventDateTime" class="form-control"
+                       @bind="Model.EventDateTime" @bind:format="yyyy-MM-ddTHH:mm" />
+                <label for="Model.EventDateTime">Date / time</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText id="Model.Location" @bind-Value="Model.Location" class="form-control" placeholder="Location" />
+                <label for="Model.Location">Location</label>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" id="speakers-label">Speakers</label>
+                <div class="border p-2" style="max-height: 200px; overflow-y: auto;" role="group" aria-labelledby="speakers-label">
+                    @if (_availableSpeakers is null)
+                    {
+                        <p class="text-muted m-0">Loading…</p>
+                    }
+                    else if (_availableSpeakers.Count == 0)
+                    {
+                        <p class="text-muted m-0">No users yet.</p>
+                    }
+                    else
+                    {
+                        @foreach (var s in _availableSpeakers)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="speaker-@s.Id"
+                                       checked="@Model.SpeakerIds.Contains(s.Id)"
+                                       @onchange="e => ToggleSpeaker(s.Id, (bool)e.Value!)" />
+                                <label class="form-check-label" for="speaker-@s.Id">@s.DisplayName</label>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="Model.IsPublished" @bind="Model.IsPublished" />
+                <label class="form-check-label" for="Model.IsPublished">
+                    Published
+                </label>
+                <small class="form-text text-muted d-block">
+                    Publishing requires Description, Date/Time, Location, and at least one speaker.
+                </small>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-primary" @onclick="Save" disabled="@_saving">
+                    @(_saving ? "Saving…" : "Save")
+                </button>
+                <a href="/events/manage" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>
+    </div>
+}

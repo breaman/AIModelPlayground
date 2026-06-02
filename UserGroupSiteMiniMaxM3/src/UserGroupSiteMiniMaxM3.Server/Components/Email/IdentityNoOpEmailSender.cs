@@ -1,7 +1,7 @@
-using UserGroupSiteMiniMaxM3.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+
+using UserGroupSiteMiniMaxM3.Data.Models;
 
 namespace UserGroupSiteMiniMaxM3.Server.Components.Email;
 

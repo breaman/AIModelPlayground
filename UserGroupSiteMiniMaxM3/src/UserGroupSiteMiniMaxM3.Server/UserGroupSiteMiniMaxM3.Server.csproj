@@ -4,6 +4,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Markdig" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
@@ -19,6 +20,7 @@
     <ProjectReference Include="..\..\aspire\UserGroupSiteMiniMaxM3.ServiceDefaults\UserGroupSiteMiniMaxM3.ServiceDefaults.csproj" />
     <ProjectReference Include="..\UserGroupSiteMiniMaxM3.Client\UserGroupSiteMiniMaxM3.Client.csproj" />
     <ProjectReference Include="..\UserGroupSiteMiniMaxM3.Data\UserGroupSiteMiniMaxM3.Data.csproj" />
+    <ProjectReference Include="..\UserGroupSiteMiniMaxM3.Shared\UserGroupSiteMiniMaxM3.Shared.csproj" />
   </ItemGroup>
 
   <Target Name="CopyBootstrapJs" BeforeTargets="Build">

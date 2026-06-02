@@ -1,0 +1,107 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = Roles.Admin)]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>User management</PageTitle>
+
+<h1>User management</h1>
+<p class="text-muted">Assign or revoke the Admin and Speaker roles for each user.</p>
+
+@if (_loadError is not null)
+{
+    <div class="alert alert-danger" role="alert">@_loadError</div>
+}
+
+@if (_users is null)
+{
+    <p><em>Loading…</em></p>
+}
+else if (_users.Count == 0)
+{
+    <div class="alert alert-info">No users yet.</div>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Member since</th>
+                <th>Roles</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in _users)
+            {
+                <tr>
+                    <td>
+                        @($"{u.FirstName} {u.LastName}".Trim())
+                        @if (u.Id == _currentUserId)
+                        {
+                            <span class="badge bg-primary ms-1" title="This is your account">You</span>
+                        }
+                    </td>
+                    <td>@u.Email</td>
+                    <td>@u.MemberSince.ToLocalTime().ToString("yyyy-MM-dd")</td>
+                    <td>
+                        @if (u.Roles.Contains(Roles.Admin))
+                        {
+                            <span class="badge bg-danger me-1">Admin</span>
+                        }
+                        @if (u.Roles.Contains(Roles.Speaker))
+                        {
+                            <span class="badge bg-info text-dark">Speaker</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => BeginEdit(u)">Edit roles</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (_editing is not null)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit roles — @($"{_editing.FirstName} {_editing.LastName}".Trim())</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CancelEdit"></button>
+                </div>
+                <div class="modal-body">
+                    @if (_editError is not null)
+                    {
+                        <div class="alert alert-danger" role="alert">@_editError</div>
+                    }
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="role-admin" @bind="_editIsAdmin" disabled="@(_editing.Id == _currentUserId)" />
+                        <label class="form-check-label" for="role-admin">
+                            Admin
+                            @if (_editing.Id == _currentUserId)
+                            {
+                                <span class="text-muted ms-1" title="You cannot remove your own Admin role while signed in as an admin.">
+                                    (locked — you cannot remove your own Admin role while signed in)
+                                </span>
+                            }
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="role-speaker" @bind="_editIsSpeaker" />
+                        <label class="form-check-label" for="role-speaker">Speaker</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveEdit" disabled="@_saving">
+                        @(_saving ? "Saving…" : "Save")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,104 @@
+@page "/topics"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+
+<PageTitle>Topics</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Topic suggestions</h1>
+    <button type="button" class="btn btn-primary" @onclick="ShowCreateForm">
+        <i class="bi bi-plus-lg" aria-hidden="true"></i> Suggest a topic
+    </button>
+</div>
+
+@if (_createOpen)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="h5">New topic</h2>
+            @if (_createErrors.Count > 0)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <ul class="mb-0">
+                        @foreach (var (field, messages) in _createErrors)
+                        {
+                            @foreach (var m in messages)
+                            {
+                                <li>@m</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+            <div class="form-floating mb-3">
+                <input id="NewTitle" class="form-control" @bind="_newTitle" placeholder="Title" maxlength="200" />
+                <label for="NewTitle">Title</label>
+            </div>
+            <div class="mb-3">
+                <label for="NewDescription" class="form-label">Description (optional)</label>
+                <textarea id="NewDescription" class="form-control" @bind="_newDescription" rows="4"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-primary" @onclick="SubmitNew" disabled="@_busy">
+                    @(_busy ? "Saving…" : "Save")
+                </button>
+                <button type="button" class="btn btn-secondary" @onclick="HideCreateForm">Cancel</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_topics is null)
+{
+    <p aria-live="polite"><em>Loading…</em></p>
+}
+else if (_topics.Count == 0)
+{
+    <div class="alert alert-info">No topics yet — be the first to suggest one!</div>
+}
+else
+{
+    <ul class="list-unstyled">
+        @foreach (var t in _topics)
+        {
+            <li class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h2 class="h5 mb-1">@t.Title</h2>
+                            <p class="text-muted small mb-2">
+                                Suggested by @t.SuggestedByDisplayName
+                                <span class="ms-2">@t.CreatedAt.ToLocalTime().ToString("MMM d, yyyy")</span>
+                            </p>
+                        </div>
+                        @if (CanDelete(t))
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => DeleteAsync(t.Id)" disabled="@_busy">
+                                <i class="bi bi-trash" aria-hidden="true"></i> Delete
+                            </button>
+                        }
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(t.Description))
+                    {
+                        <p class="card-text">@t.Description</p>
+                    }
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm @(t.UserHasVoted ? "btn-primary" : "btn-outline-primary")"
+                                @onclick="() => ToggleVoteAsync(t.Id)" disabled="@_busy">
+                            <i class="bi bi-hand-thumbs-up" aria-hidden="true"></i>
+                            @(t.UserHasVoted ? "Voted" : "Vote")
+                            <span class="badge bg-secondary ms-1">@t.VoteCount</span>
+                        </button>
+                        <button type="button" class="btn btn-sm @(t.UserHasVolunteered ? "btn-success" : "btn-outline-success")"
+                                @onclick="() => ToggleVolunteerAsync(t.Id)" disabled="@_busy">
+                            <i class="bi bi-mic" aria-hidden="true"></i>
+                            @(t.UserHasVolunteered ? "Volunteering" : "Volunteer")
+                            <span class="badge bg-secondary ms-1">@t.VolunteerCount</span>
+                        </button>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+}

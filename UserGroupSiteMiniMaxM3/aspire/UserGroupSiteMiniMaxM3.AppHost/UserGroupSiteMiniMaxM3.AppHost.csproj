@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <!-- The Data project is referenced as the EF Core migrations project, not as a runnable resource.
+         ASPIRE004 (as of 13.3.3) flags it incorrectly; suppress until the analyzer learns about
+         WithMigrationsProject-style references. -->
+    <NoWarn>$(NoWarn);ASPIRE004</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
