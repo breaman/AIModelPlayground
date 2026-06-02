@@ -1,0 +1,218 @@
+@page "/events/new"
+@page "/events/edit/{Id:int}"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize(Roles = "Admin,Speaker")]
+@inject IEventService EventService
+@inject IToastService ToastService
+@inject NavigationManager Navigation
+
+<PageTitle>@(_isNew ? "Create Event" : "Edit Event")</PageTitle>
+
+<div style="@(_isLoading ? "" : "display:none")">
+    <div class="d-flex justify-content-center my-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
+
+<div style="@(_isLoading ? "display:none" : "")">
+    <h3>@(_isNew ? "Create Event" : "Edit Event")</h3>
+
+    <EditForm Model="@_model" OnValidSubmit="HandleSubmit">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="_titleField" class="form-control" placeholder="Event Title" />
+                    <label>Title</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="_slugField" class="form-control" placeholder="event-slug" />
+                    <label>Slug</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="_shortDescField" class="form-control" placeholder="Brief description" />
+            <label>Short Description</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <textarea @bind="_descField" class="form-control" placeholder="Markdown content..." style="height:200px"></textarea>
+            <label>Description (Markdown)</label>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="_dateField" class="form-control" />
+                    <label>Date &amp; Time</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="_locationField" class="form-control" placeholder="Location" />
+                    <label>Location</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Speakers</label>
+            <select class="form-select" multiple size="5" @bind="_selectedSpeakerIds">
+                @foreach (var speaker in _availableSpeakers)
+                {
+                    <option value="@speaker.Id">@speaker.FullName</option>
+                }
+            </select>
+            <div class="form-text">Hold Ctrl/Cmd to select multiple speakers.</div>
+        </div>
+
+        <div class="form-check mb-3">
+            <InputCheckbox @bind-Value="_isPublishedField" class="form-check-input" />
+            <label class="form-check-label">Published</label>
+        </div>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger">@_errorMessage</div>
+        }
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" disabled="@_isSaving">
+                @if (_isSaving)
+                {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                }
+                @(_isNew ? "Create Event" : "Save Changes")
+            </button>
+            <a href="/events/manage" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private EventDto _model = new();
+    private List<UserDto> _availableSpeakers = [];
+    private bool _isNew => Id == 0;
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private string? _errorMessage;
+    private List<int> _selectedSpeakerIds = [];
+
+    private string _titleField { get; set; } = "";
+    private string _slugField { get; set; } = "";
+    private string _shortDescField { get; set; } = "";
+    private string _descField { get; set; } = "";
+    private string _locationField { get; set; } = "";
+    private DateTime _dateField { get; set; } = DateTime.Now.AddDays(14);
+    private bool _isPublishedField { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_isNew)
+        {
+            _dateField = DateTime.Now.AddDays(14);
+        }
+        else
+        {
+            var existing = await EventService.GetEventByIdAsync(Id);
+            if (existing is not null)
+            {
+                _model = existing;
+                _titleField = existing.Title;
+                _slugField = existing.Slug;
+                _shortDescField = existing.ShortDescription ?? "";
+                _descField = existing.Description ?? "";
+                _locationField = existing.Location ?? "";
+                _dateField = existing.EventDateTime.DateTime;
+                _isPublishedField = existing.IsPublished;
+                _selectedSpeakerIds = existing.SpeakerUserIds;
+            }
+            else
+            {
+                Navigation.NavigateTo("/events/manage");
+                return;
+            }
+        }
+
+        _availableSpeakers = await EventService.GetAvailableSpeakersAsync();
+        _isLoading = false;
+    }
+
+    private async Task HandleSubmit()
+    {
+        _errorMessage = null;
+
+        _model.Title = _titleField;
+        _model.Slug = _slugField;
+        _model.ShortDescription = string.IsNullOrWhiteSpace(_shortDescField) ? null : _shortDescField;
+        _model.Description = string.IsNullOrWhiteSpace(_descField) ? null : _descField;
+        _model.Location = string.IsNullOrWhiteSpace(_locationField) ? null : _locationField;
+        _model.EventDateTime = new DateTimeOffset(_dateField, TimeSpan.Zero);
+        _model.IsPublished = _isPublishedField;
+        _model.SpeakerUserIds = _selectedSpeakerIds;
+
+        if (string.IsNullOrWhiteSpace(_model.Title))
+        {
+            _errorMessage = "Title is required.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(_model.Slug))
+        {
+            _errorMessage = "Slug is required.";
+            return;
+        }
+        if (_model.IsPublished)
+        {
+            if (string.IsNullOrWhiteSpace(_model.Description))
+            {
+                _errorMessage = "Description is required when publishing.";
+                return;
+            }
+            if (_model.EventDateTime == default)
+            {
+                _errorMessage = "Event date/time is required when publishing.";
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(_model.Location))
+            {
+                _errorMessage = "Location is required when publishing.";
+                return;
+            }
+            if (_model.SpeakerUserIds.Count == 0)
+            {
+                _errorMessage = "At least one speaker is required when publishing.";
+                return;
+            }
+        }
+
+        _isSaving = true;
+        try
+        {
+            if (_isNew)
+            {
+                var created = await EventService.CreateEventAsync(_model);
+                ToastService.ShowSuccess("Event created successfully.");
+                Navigation.NavigateTo($"/events/{created.Slug}");
+            }
+            else
+            {
+                _model.Id = Id;
+                await EventService.UpdateEventAsync(_model);
+                ToastService.ShowSuccess("Event updated successfully.");
+                Navigation.NavigateTo($"/events/{_model.Slug}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to save event: {ex.Message}";
+            _isSaving = false;
+        }
+    }
+}

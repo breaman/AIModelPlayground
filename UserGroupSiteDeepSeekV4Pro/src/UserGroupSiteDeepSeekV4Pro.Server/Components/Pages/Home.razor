@@ -1,6 +1,65 @@
 @page "/"
-<h3>Home</h3>
+@attribute [AllowAnonymous]
+@using UserGroupSiteDeepSeekV4Pro.Shared.Models
 
-<p>Welcome to your homepage</p>
-<p>With hot reload? Why did it think that worked for some reason?</p>
-<p>Now do I have hot reload?</p>
+<PageTitle>Home</PageTitle>
+
+@if (_events is null)
+{
+    <div class="d-flex justify-content-center my-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading events...</span>
+        </div>
+    </div>
+}
+else if (_events.Count == 0)
+{
+    <div class="text-center my-5">
+        <h3 class="text-muted">No upcoming events</h3>
+        <p>Check back later for new events.</p>
+    </div>
+}
+else
+{
+    <h3 class="mb-4">Upcoming Events</h3>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var evt in _events)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="/events/@evt.Slug" class="text-decoration-none">@evt.Title</a>
+                        </h5>
+                        <p class="card-text text-muted small">
+                            <span class="bi bi-calendar-event me-1"></span>@evt.EventDateTime.ToString("MMMM d, yyyy h:mm tt")
+                        </p>
+                        @if (!string.IsNullOrWhiteSpace(evt.Location))
+                        {
+                            <p class="card-text text-muted small">
+                                <span class="bi bi-geo-alt me-1"></span>@evt.Location
+                            </p>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(evt.ShortDescription))
+                        {
+                            <p class="card-text">@evt.ShortDescription</p>
+                        }
+                        @if (evt.Speakers.Count > 0)
+                        {
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <span class="bi bi-person-badge me-1"></span>
+                                    <strong>Speakers:</strong>
+                                    @string.Join(", ", evt.Speakers.Select(s => s.FullName))
+                                </small>
+                            </p>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="/events/@evt.Slug" class="btn btn-outline-primary btn-sm">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

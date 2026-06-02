@@ -5,12 +5,33 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
                         <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
                     </NavLink>
                 </li>
+                <AuthorizeView Roles="Admin,Speaker">
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/events/manage">
+                            <span class="bi bi-calendar-check" aria-hidden="true"></span> Manage Events
+                        </NavLink>
+                    </li>
+                </AuthorizeView>
+                <AuthorizeView>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/topics">
+                            <span class="bi bi-lightbulb" aria-hidden="true"></span> Topic Suggestions
+                        </NavLink>
+                    </li>
+                </AuthorizeView>
+                <AuthorizeView Roles="Admin">
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/admin/users">
+                            <span class="bi bi-people" aria-hidden="true"></span> Manage Users
+                        </NavLink>
+                    </li>
+                </AuthorizeView>
             </ul>
             <ul class="navbar-nav ms-auto">
                 <AuthorizeView>

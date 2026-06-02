@@ -6,8 +6,10 @@ using UserGroupSiteDeepSeekV4Pro.Data.Models;
 using UserGroupSiteDeepSeekV4Pro.Server.Components;
 using UserGroupSiteDeepSeekV4Pro.Server.Components.Account;
 using UserGroupSiteDeepSeekV4Pro.Server.Components.Email;
+using UserGroupSiteDeepSeekV4Pro.Server.Endpoints;
 using UserGroupSiteDeepSeekV4Pro.Server.Services;
 using UserGroupSiteDeepSeekV4Pro.ServiceDefaults;
+using UserGroupSiteDeepSeekV4Pro.Shared.Constants;
 using UserGroupSiteDeepSeekV4Pro.Shared.Services;
 
 using Microsoft.AspNetCore.Identity;
@@ -50,7 +52,13 @@ try
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
         .AddIdentityCookies();
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy(Policies.CanManageUsers, policy =>
+            policy.RequireRole(RoleNames.Admin));
+        options.AddPolicy(Policies.CanManageEvents, policy =>
+            policy.RequireRole(RoleNames.Admin, RoleNames.Speaker));
+    });
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
@@ -82,6 +90,11 @@ try
     builder.Services.AddScoped<IUserService, HttpUserService>();
     builder.Services.AddScoped<IToastService, ToastService>();
 
+    // Application services
+    builder.Services.AddScoped<IEventService, ServerEventService>();
+    builder.Services.AddScoped<ITopicSuggestionService, ServerTopicSuggestionService>();
+    builder.Services.AddScoped<IUserManagementService, ServerUserManagementService>();
+
     // Add route configuration to enforce lowercase URLs for better SEO
     builder.Services.Configure<RouteOptions>(options =>
     {
@@ -91,6 +104,9 @@ try
     });
 
     var app = builder.Build();
+
+    // Seed roles and initial admin user
+    await DataSeeder.SeedAsync(app.Services);
 
     app.MapDefaultEndpoints();
 
@@ -121,6 +137,11 @@ try
         .AddAdditionalAssemblies(typeof(UserGroupSiteDeepSeekV4Pro.Client._Imports).Assembly);
 
     app.MapAdditionalIdentityEndpoints();
+
+    // Map API endpoints
+    app.MapEventEndpoints();
+    app.MapTopicEndpoints();
+    app.MapUserEndpoints();
 
     app.Run();
 }

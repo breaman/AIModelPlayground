@@ -1,0 +1,92 @@
+@page "/topics"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize]
+
+<PageTitle>Topic Suggestions</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Topic Suggestions</h3>
+    <button class="btn btn-primary" @onclick="() => _showSuggestForm = !_showSuggestForm">
+        <span class="bi bi-lightbulb me-1"></span>Suggest Topic
+    </button>
+</div>
+
+@if (_showSuggestForm)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Suggest a New Topic</h5>
+            <EditForm Model="@_newTopic" OnValidSubmit="HandleSuggest" FormName="suggestTopic">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="_newTopic.Title" id="newTitle" class="form-control" placeholder="Topic title" />
+                    <label for="newTitle">Title</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <InputTextArea @bind-Value="_newTopic.Description" id="newDescription" class="form-control" placeholder="Description" rows="3" />
+                    <label for="newDescription">Description (optional)</label>
+                </div>
+                <button type="submit" class="btn btn-success">Submit</button>
+                <button type="button" class="btn btn-outline-secondary ms-2" @onclick="() => _showSuggestForm = false">Cancel</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@if (_topics is null)
+{
+    <div class="d-flex justify-content-center my-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var topic in _topics)
+        {
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div>
+                        <h5 class="mb-1">@topic.Title</h5>
+                        @if (!string.IsNullOrWhiteSpace(topic.Description))
+                        {
+                            <p class="mb-1 text-muted">@topic.Description</p>
+                        }
+                        <small>
+                            Suggested by @(topic.SuggestedByUser?.FullName ?? "Unknown")
+                            @if (topic.CreatedOn.HasValue)
+                            {
+                                <span> on @topic.CreatedOn.Value.ToString("MMM d, yyyy")</span>
+                            }
+                        </small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm @(topic.CurrentUserHasVoted ? "btn-primary" : "btn-outline-primary")"
+                                @onclick="() => ToggleVote(topic)">
+                            <span class="bi bi-hand-thumbs-up me-1"></span>@topic.VoteCount
+                        </button>
+                        @if (topic.VolunteerUser is not null)
+                        {
+                            <span class="badge bg-info">
+                                <span class="bi bi-person-check me-1"></span>@topic.VolunteerUser.FullName
+                            </span>
+                            @if (topic.CurrentUserIsVolunteer)
+                            {
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveVolunteer(topic.Id)">
+                                    <span class="bi bi-person-dash"></span>
+                                </button>
+                            }
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-outline-success" @onclick="() => Volunteer(topic.Id)">
+                                <span class="bi bi-person-plus me-1"></span>Volunteer
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

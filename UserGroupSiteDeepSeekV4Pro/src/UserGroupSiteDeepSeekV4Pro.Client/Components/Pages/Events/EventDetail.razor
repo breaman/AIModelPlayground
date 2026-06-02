@@ -1,0 +1,80 @@
+@page "/events/{Slug}"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>@(_event?.Title ?? "Event")</PageTitle>
+
+@if (_isLoading)
+{
+    <div class="d-flex justify-content-center my-5">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (_event is null)
+{
+    <div class="text-center my-5">
+        <h3 class="text-muted">Event not found</h3>
+        <p>The event you're looking for doesn't exist or may have been removed.</p>
+        <a href="/" class="btn btn-primary">Back to Home</a>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-lg-8">
+            <h2>@_event.Title</h2>
+
+            <div class="mb-3">
+                <span class="badge bg-primary me-2">
+                    <span class="bi bi-calendar-event me-1"></span>@_event.EventDateTime.ToString("MMMM d, yyyy h:mm tt")
+                </span>
+                @if (!string.IsNullOrWhiteSpace(_event.Location))
+                {
+                    <span class="badge bg-secondary">
+                        <span class="bi bi-geo-alt me-1"></span>@_event.Location
+                    </span>
+                }
+            </div>
+
+            @if (_event.Speakers.Count > 0)
+            {
+                <div class="mb-3">
+                    <h5><span class="bi bi-person-badge me-1"></span>Speakers</h5>
+                    <ul class="list-unstyled">
+                        @foreach (var speaker in _event.Speakers)
+                        {
+                            <li><span class="bi bi-person me-1"></span>@speaker.FullName</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(_event.Description))
+            {
+                <hr />
+                <div class="markdown-content">
+                    @((MarkupString)(_renderedMarkdown ?? ""))
+                </div>
+            }
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Event Details</h5>
+                    <hr />
+                    <p><strong>Date:</strong> @_event.EventDateTime.ToString("MMMM d, yyyy")</p>
+                    <p><strong>Time:</strong> @_event.EventDateTime.ToString("h:mm tt")</p>
+                    @if (!string.IsNullOrWhiteSpace(_event.Location))
+                    {
+                        <p><strong>Location:</strong> @_event.Location</p>
+                    }
+                    @if (_event.CreatedOn.HasValue)
+                    {
+                        <p class="text-muted small">Posted: @_event.CreatedOn.Value.ToString("MMM d, yyyy")</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

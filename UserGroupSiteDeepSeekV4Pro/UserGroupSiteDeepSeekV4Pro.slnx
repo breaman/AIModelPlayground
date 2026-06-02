@@ -19,4 +19,7 @@
     <Project Path="src/UserGroupSiteDeepSeekV4Pro.Server/UserGroupSiteDeepSeekV4Pro.Server.csproj" />
     <Project Path="src/UserGroupSiteDeepSeekV4Pro.Shared/UserGroupSiteDeepSeekV4Pro.Shared.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UserGroupSiteDeepSeekV4Pro.Tests/UserGroupSiteDeepSeekV4Pro.Tests.csproj" />
+  </Folder>
 </Solution>
