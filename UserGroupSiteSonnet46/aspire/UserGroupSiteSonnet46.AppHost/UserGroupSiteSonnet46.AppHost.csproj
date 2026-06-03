@@ -1,0 +1,19 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.3.3">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.EntityFrameworkCore" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\UserGroupSiteSonnet46.Data\UserGroupSiteSonnet46.Data.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteSonnet46.Server\UserGroupSiteSonnet46.Server.csproj" />
+    <ProjectReference Include="..\UserGroupSiteSonnet46.ServiceDefaults\UserGroupSiteSonnet46.ServiceDefaults.csproj" IsAspireProjectResource="false" />
+  </ItemGroup>
+
+</Project>
