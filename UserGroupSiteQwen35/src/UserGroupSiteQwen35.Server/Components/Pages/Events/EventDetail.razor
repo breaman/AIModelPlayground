@@ -1,0 +1,117 @@
+@page "/events/{Slug}"
+@using UserGroupSiteQwen35.Data.Models
+@using UserGroupSiteQwen35.Client.Services
+@using Markdig
+@inject IEventClientService EventService
+@inject NavigationManager Navigation
+@inject UserGroupSiteQwen35.Client.Services.ToastService ToastService
+@inject ClaimsPrincipal User
+
+<PageTitle>@(_event?.Title ?? "Event Details")</PageTitle>
+
+@if (_isLoading)
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else if (_event == null)
+{
+    <div class="alert alert-warning">Event not found</div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-8">
+            <h3>@_event.Title</h3>
+            <p class="text-muted">
+                <strong>Date:</strong> @_event.DateTime.ToString("MMMM dd, yyyy") at @_event.DateTime.ToString("h:mm tt")<br />
+                @if (!string.IsNullOrEmpty(_event.Location))
+                {
+                    <text><strong>Location:</strong> @_event.Location</text>
+                }
+            </p>
+
+            @if (!string.IsNullOrEmpty(_event.Description))
+            {
+                <div class="event-description mt-4">
+                    @((MarkupString)Markdown.ToHtml(_event.Description))
+                </div>
+            }
+
+            @if (_event.IsPublished)
+            {
+                <span class="badge bg-success">Published</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Draft</span>
+            }
+        </div>
+
+        @if (_canEdit)
+        {
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Manage Event</h5>
+                        <a href="/admin/events/edit/@_event.Id" class="btn btn-primary mb-2">Edit Event</a>
+                        @if (_event.IsPublished)
+                        {
+                            <button class="btn btn-outline-secondary w-100" @onclick="Unpublish">Unpublish</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-success w-100" @onclick="Publish">Publish Event</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Slug { get; set; } = string.Empty;
+
+    private Event? _event;
+    private bool _isLoading = true;
+    private bool _canEdit;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _event = await EventService.GetEventBySlugAsync(Slug);
+            _isLoading = false;
+
+            // Check if user can edit (Admin, Speaker, or assigned speaker)
+            _canEdit = User.IsInRole(RoleNames.Admin) || User.IsInRole(RoleNames.Speaker);
+        }
+        catch
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task Publish()
+    {
+        if (_event != null)
+        {
+            _event.IsPublished = true;
+            await EventService.UpdateEventAsync(_event);
+            ToastService.ShowSuccess("Event published", "Success");
+        }
+    }
+
+    private async Task Unpublish()
+    {
+        if (_event != null)
+        {
+            _event.IsPublished = false;
+            await EventService.UpdateEventAsync(_event);
+            ToastService.ShowSuccess("Event unpublished", "Success");
+        }
+    }
+}

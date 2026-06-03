@@ -1,0 +1,194 @@
+@page "/admin/events"
+@page "/admin/events/edit/{Id:int}"
+@attribute [Authorize("SpeakerOrAdmin")]
+@using UserGroupSiteQwen35.Data.Models
+@using UserGroupSiteQwen35.Client.Services
+@using UserGroupSiteQwen35.Shared.Utilities
+@inject IEventClientService EventService
+@inject NavigationManager Navigation
+@inject IToastService ToastService
+@inject IJSRuntime JS
+
+<PageTitle>@(IsEditMode ? "Edit Event" : "Create Event")</PageTitle>
+
+<h3>@(IsEditMode ? "Edit Event" : "Create Event")</h3>
+
+<div class="row">
+    <div class="col-md-8">
+        <form @onsubmit="SaveEvent">
+            <div class="mb-3">
+                <label class="form-label">Title *</label>
+                <input type="text" class="form-control" @bind="_event.Title" @bind:event="oninput" @onblur="GenerateSlug" required />
+                @if (!string.IsNullOrEmpty(_titleError))
+                {
+                    <div class="invalid-feedback d-block">@_titleError</div>
+                }
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Slug *</label>
+                <div class="input-group">
+                    <span class="input-group-text">/events/</span>
+                    <input type="text" class="form-control" @bind="_event.Slug" @bind:event="oninput" required />
+                </div>
+                @if (!string.IsNullOrEmpty(_slugError))
+                {
+                    <div class="invalid-feedback d-block">@_slugError</div>
+                }
+                @if (_slugAvailable == false)
+                {
+                    <div class="form-text text-danger">This slug is already in use</div>
+                }
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Short Description</label>
+                <textarea class="form-control" rows="2" maxlength="500" @bind="_event.ShortDescription" @bind:event="oninput"></textarea>
+                <div class="form-text">@(_event.ShortDescription?.Length ?? 0)/500 characters</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description @(IsPublishing ? "*" : "")</label>
+                <MarkdownEditor @bind-Value="_event.Description" />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Date/Time @(IsPublishing ? "*" : "")</label>
+                    <input type="datetime-local" class="form-control" @bind="_event.DateTime" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Location @(IsPublishing ? "*" : "")</label>
+                    <input type="text" class="form-control" @bind="_event.Location" />
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    @(IsPublishing ? "Publish Event" : "Save Draft")
+                </button>
+                @if (IsEditMode && _event.IsPublished)
+                {
+                    <button type="button" class="btn btn-outline-secondary" @onclick="UnpublishEvent">
+                        Unpublish
+                    </button>
+                }
+                <button type="button" class="btn btn-outline-danger" @onclick="DeleteEvent" disabled="!IsEditMode">
+                    Delete
+                </button>
+                <a href="/admin/events" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-3">@_errorMessage</div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Event _event = new();
+    private bool IsEditMode => Id > 0;
+    private bool IsPublishing { get; set; } = false;
+    private string? _titleError;
+    private string? _slugError;
+    private bool? _slugAvailable;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsEditMode)
+        {
+            var evt = await EventService.GetEventByIdAsync(Id);
+            if (evt != null)
+            {
+                _event = evt;
+            }
+            else
+            {
+                Navigation.NavigateTo("/admin/events");
+            }
+        }
+    }
+
+    private async Task GenerateSlug()
+    {
+        if (string.IsNullOrWhiteSpace(_event.Title) || (!string.IsNullOrEmpty(_event.Slug) && _event.Slug != SlugHelper.GenerateSlug(_event.Title)))
+        {
+            return;
+        }
+
+        _event.Slug = SlugHelper.GenerateSlug(_event.Title);
+        await CheckSlugAvailability();
+    }
+
+    private async Task OnSlugChanged()
+    {
+        await CheckSlugAvailability();
+    }
+
+    private async Task CheckSlugAvailability()
+    {
+        if (string.IsNullOrWhiteSpace(_event.Slug))
+        {
+            _slugAvailable = null;
+            return;
+        }
+
+        var isAvailable = await EventService.CheckSlugAvailabilityAsync(_event.Slug, IsEditMode ? Id : null);
+        _slugAvailable = isAvailable;
+        _slugError = isAvailable ? null : "This slug is already in use";
+    }
+
+    private async Task SaveEvent()
+    {
+        _titleError = string.IsNullOrWhiteSpace(_event.Title) ? "Title is required" : null;
+        _slugError = string.IsNullOrWhiteSpace(_event.Slug) ? "Slug is required" : null;
+
+        if (!string.IsNullOrEmpty(_titleError) || !string.IsNullOrEmpty(_slugError))
+        {
+            return;
+        }
+
+        try
+        {
+            if (IsEditMode)
+            {
+                await EventService.UpdateEventAsync(_event);
+                ToastService.ShowSuccess("Event updated successfully", "Success");
+            }
+            else
+            {
+                await EventService.CreateEventAsync(_event);
+                ToastService.ShowSuccess("Event created successfully", "Success");
+            }
+
+            Navigation.NavigateTo("/admin/events");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to save event: {ex.Message}";
+        }
+    }
+
+    private async Task UnpublishEvent()
+    {
+        _event.IsPublished = false;
+        await EventService.UpdateEventAsync(_event);
+        ToastService.ShowSuccess("Event unpublished", "Success");
+    }
+
+    private async Task DeleteEvent()
+    {
+        if (await JS.InvokeAsync<bool>("confirm", "Are you sure you want to delete this event?"))
+        {
+            await EventService.DeleteEventAsync(Id);
+            ToastService.ShowSuccess("Event deleted", "Success");
+            Navigation.NavigateTo("/admin/events");
+        }
+    }
+}

@@ -1,6 +1,59 @@
 @page "/"
-<h3>Home</h3>
+@using UserGroupSiteQwen35.Data.Models
+@using UserGroupSiteQwen35.Client.Services
+@inject IEventClientService EventService
 
-<p>Welcome to your homepage</p>
-<p>With hot reload? Why did it think that worked for some reason?</p>
-<p>Now do I have hot reload?</p>
+<PageTitle>Home</PageTitle>
+
+<h3>Upcoming Events</h3>
+
+@if (_events == null)
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else if (!_events.Any())
+{
+    <div class="alert alert-info">No upcoming events. Check back later!</div>
+}
+else
+{
+    <div class="row">
+        @foreach (var evt in _events)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@evt.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            @evt.DateTime.ToString("MMMM dd, yyyy") at @evt.DateTime.ToString("h:mm tt")
+                        </h6>
+                        @if (!string.IsNullOrEmpty(evt.Location))
+                        {
+                            <p class="card-text">
+                                <strong>Location:</strong> @evt.Location
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(evt.ShortDescription))
+                        {
+                            <p class="card-text">@evt.ShortDescription</p>
+                        }
+                    </div>
+                    <div class="card-footer">
+                        <a href="/events/@evt.Slug" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private IEnumerable<Event>? _events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _events = await EventService.GetPublishedEventsAsync();
+    }
+}

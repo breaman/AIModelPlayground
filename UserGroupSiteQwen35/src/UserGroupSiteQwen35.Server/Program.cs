@@ -3,13 +3,17 @@ using System.Diagnostics;
 using UserGroupSiteQwen35.Client.Services;
 using UserGroupSiteQwen35.Data.Interfaces;
 using UserGroupSiteQwen35.Data.Models;
+using UserGroupSiteQwen35.Data.Repositories;
+using UserGroupSiteQwen35.Server.Authorization;
 using UserGroupSiteQwen35.Server.Components;
 using UserGroupSiteQwen35.Server.Components.Account;
 using UserGroupSiteQwen35.Server.Components.Email;
+using UserGroupSiteQwen35.Server.Endpoints;
 using UserGroupSiteQwen35.Server.Services;
 using UserGroupSiteQwen35.ServiceDefaults;
 using UserGroupSiteQwen35.Shared.Services;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,7 +54,17 @@ try
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
         .AddIdentityCookies();
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("AdminOnly", policy => policy.RequireRole(RoleNames.Admin));
+        options.AddPolicy("SpeakerOrAdmin", policy =>
+            policy.RequireAssertion(context =>
+                context.User.IsInRole(RoleNames.Admin) || context.User.IsInRole(RoleNames.Speaker)));
+        options.AddPolicy("EventEditor", policy =>
+            policy.AddRequirements(new UserGroupSiteQwen35.Server.Authorization.EventEditorRequirement()));
+    });
+
+    builder.Services.AddScoped<AuthorizationHandler<EventEditorRequirement>, EventEditorHandler>();
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
@@ -81,6 +95,25 @@ try
     builder.Services.AddSingleton<IEmailSender<User>, IdentityNoOpEmailSender>();
     builder.Services.AddScoped<IUserService, HttpUserService>();
     builder.Services.AddScoped<IToastService, ToastService>();
+
+    // Repositories
+    builder.Services.AddScoped<IEventRepository, EventRepository>();
+    builder.Services.AddScoped<ISpeakerRepository, SpeakerRepository>();
+    builder.Services.AddScoped<ITopicSuggestionRepository, TopicSuggestionRepository>();
+    builder.Services.AddScoped<ITopicVoteRepository, TopicVoteRepository>();
+
+    // Services
+    builder.Services.AddScoped<UserManagementService>();
+    builder.Services.AddScoped<EventService>();
+    builder.Services.AddScoped<TopicSuggestionService>();
+
+    // Client services
+    builder.Services.AddHttpClient<IUserManagementClientService, UserManagementClientService>(client =>
+        client.BaseAddress = new Uri("https://localhost"));
+    builder.Services.AddHttpClient<IEventClientService, EventClientService>(client =>
+        client.BaseAddress = new Uri("https://localhost"));
+    builder.Services.AddHttpClient<ITopicSuggestionClientService, TopicSuggestionClientService>(client =>
+        client.BaseAddress = new Uri("https://localhost"));
 
     // Add route configuration to enforce lowercase URLs for better SEO
     builder.Services.Configure<RouteOptions>(options =>
@@ -121,6 +154,11 @@ try
         .AddAdditionalAssemblies(typeof(UserGroupSiteQwen35.Client._Imports).Assembly);
 
     app.MapAdditionalIdentityEndpoints();
+
+    // Map API endpoints
+    app.MapUserManagementEndpoints();
+    app.MapEventEndpoints();
+    app.MapTopicSuggestionEndpoints();
 
     app.Run();
 }

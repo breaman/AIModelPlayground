@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\UserGroupSiteQwen35.Data\UserGroupSiteQwen35.Data.csproj" />
     <ProjectReference Include="..\UserGroupSiteQwen35.Shared\UserGroupSiteQwen35.Shared.csproj" />
   </ItemGroup>
 

@@ -1,0 +1,56 @@
+.markdown-editor {
+    margin-bottom: 1rem;
+}
+
+.markdown-editor .nav-tabs {
+    margin-bottom: 0;
+}
+
+.markdown-editor .tab-content {
+    background-color: #fff;
+}
+
+.markdown-editor textarea {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9rem;
+}
+
+.markdown-preview :deep(h1),
+.markdown-preview :deep(h2),
+.markdown-preview :deep(h3),
+.markdown-preview :deep(h4),
+.markdown-preview :deep(h5),
+.markdown-preview :deep(h6) {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.markdown-preview :deep(p) {
+    margin-bottom: 1rem;
+}
+
+.markdown-preview :deep(ul),
+.markdown-preview :deep(ol) {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.markdown-preview :deep(pre) {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+}
+
+.markdown-preview :deep(code) {
+    background-color: #f8f9fa;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+.markdown-preview :deep(blockquote) {
+    border-left: 4px solid #dee2e6;
+    padding-left: 1rem;
+    color: #6c757d;
+}

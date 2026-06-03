@@ -1,0 +1,157 @@
+@page "/topics"
+@attribute [Authorize]
+@using UserGroupSiteQwen35.Data.Models
+@using UserGroupSiteQwen35.Client.Services
+@inject ITopicSuggestionClientService TopicService
+@inject NavigationManager Navigation
+@inject IToastService ToastService
+
+<PageTitle>Topic Suggestions</PageTitle>
+
+<h3>Topic Suggestions</h3>
+
+<div class="mb-3">
+    <a href="/topics/suggest" class="btn btn-primary">Suggest Topic</a>
+</div>
+
+<div class="mb-3">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-secondary @(_filter == "all" ? "active" : "")" @onclick="@(() => SetFilter("all"))">All</button>
+        <button type="button" class="btn btn-outline-secondary @(_filter == "voted" ? "active" : "")" @onclick="@(() => SetFilter("voted"))">Voted</button>
+        <button type="button" class="btn btn-outline-secondary @(_filter == "not-voted" ? "active" : "")" @onclick="@(() => SetFilter("not-voted"))">Not Voted</button>
+        <button type="button" class="btn btn-outline-secondary @(_filter == "has-volunteer" ? "active" : "")" @onclick="@(() => SetFilter("has-volunteer"))">Has Volunteer</button>
+        <button type="button" class="btn btn-outline-secondary @(_filter == "no-volunteer" ? "active" : "")" @onclick="@(() => SetFilter("no-volunteer"))">No Volunteer</button>
+    </div>
+</div>
+
+@if (_topics == null)
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else if (!_topics.Any())
+{
+    <div class="alert alert-info">No topic suggestions yet. Be the first to suggest one!</div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var topic in _filteredTopics)
+        {
+            <div class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                    <div>
+                        <h5 class="mb-1">@topic.Title</h5>
+                        @if (!string.IsNullOrEmpty(topic.Description))
+                        {
+                            <p class="mb-1 text-muted">@topic.Description</p>
+                        }
+                        <small class="text-muted">
+                            Suggested by @(topic.SuggestedByUser?.FirstName ?? "Anonymous")
+                            @if (topic.VolunteerSpeaker?.User != null)
+                            {
+                                <span> • Volunteer: @topic.VolunteerSpeaker.User.FirstName</span>
+                            }
+                        </small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-sm @(topic.TopicVotes?.Any(v => v.UserId == _currentUserId) == true ? "btn-success" : "btn-outline-success")"
+                                @onclick="() => ToggleVote(topic)"
+                                disabled="@(topic.VolunteerSpeakerId == null && topic.TopicVotes?.Count > 0)">
+                            @(topic.TopicVotes?.Any(v => v.UserId == _currentUserId) == true ? "✓ Voted" : "Vote")
+                        </button>
+                        <span class="badge bg-primary rounded-pill">@topic.TopicVotes?.Count</span>
+                        @if (topic.VolunteerSpeakerId == null)
+                        {
+                            <button class="btn btn-sm btn-outline-primary" @onclick="() => Volunteer(topic)">Volunteer</button>
+                        }
+                        else if (topic.VolunteerSpeaker?.UserId == _currentUserId)
+                        {
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveVolunteer(topic)">Remove</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<TopicSuggestion>? _topics;
+    private List<TopicSuggestion> _filteredTopics = new();
+    private string _filter = "all";
+    private int _currentUserId = 0; // TODO: Get from authentication state
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _topics = (await TopicService.GetAllSuggestionsAsync()).ToList();
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError($"Failed to load topics: {ex.Message}", "Error");
+        }
+    }
+
+    private void SetFilter(string filter)
+    {
+        _filter = filter;
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        if (_topics == null)
+        {
+            _filteredTopics = new();
+            return;
+        }
+
+        _filteredTopics = _filter switch
+        {
+            "voted" => _topics.Where(t => t.TopicVotes?.Any() == true).ToList(),
+            "not-voted" => _topics.Where(t => t.TopicVotes?.Any() != true).ToList(),
+            "has-volunteer" => _topics.Where(t => t.VolunteerSpeakerId.HasValue).ToList(),
+            "no-volunteer" => _topics.Where(t => !t.VolunteerSpeakerId.HasValue).ToList(),
+            _ => _topics
+        };
+    }
+
+    private async Task ToggleVote(TopicSuggestion topic)
+    {
+        var hasVoted = topic.TopicVotes?.Any(v => v.UserId == _currentUserId) == true;
+        if (hasVoted)
+        {
+            if (await TopicService.RemoveVoteAsync(topic.Id))
+            {
+                ToastService.ShowSuccess("Vote removed", "Success");
+            }
+        }
+        else
+        {
+            if (await TopicService.VoteAsync(topic.Id))
+            {
+                ToastService.ShowSuccess("Vote recorded", "Success");
+            }
+        }
+    }
+
+    private async Task Volunteer(TopicSuggestion topic)
+    {
+        if (await TopicService.VolunteerAsync(topic.Id))
+        {
+            ToastService.ShowSuccess("You volunteered to speak", "Success");
+        }
+    }
+
+    private async Task RemoveVolunteer(TopicSuggestion topic)
+    {
+        if (await TopicService.RemoveVolunteerAsync(topic.Id))
+        {
+            ToastService.ShowSuccess("Volunteer status removed", "Success");
+        }
+    }
+}

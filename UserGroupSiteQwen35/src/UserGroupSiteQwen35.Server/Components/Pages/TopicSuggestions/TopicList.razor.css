@@ -1,0 +1,7 @@
+.list-group-item {
+    margin-bottom: 0.5rem;
+}
+
+.badge {
+    min-width: 30px;
+}

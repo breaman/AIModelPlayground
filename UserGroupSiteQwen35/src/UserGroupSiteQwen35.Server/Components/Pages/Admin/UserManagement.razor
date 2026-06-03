@@ -1,0 +1,154 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = "@RoleNames.Admin")]
+@using UserGroupSiteQwen35.Data.Models
+@using UserGroupSiteQwen35.Client.Services
+@using UserGroupSiteQwen35.Shared.Dto
+@inject IUserManagementClientService UserService
+@inject NavigationManager Navigation
+@inject IToastService ToastService
+
+<PageTitle>User Management</PageTitle>
+
+<h3>User Management</h3>
+
+@if (_users == null)
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else if (!_users.Any())
+{
+    <div class="alert alert-info">No users found.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>Manage Roles</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in _users)
+                {
+                    <tr>
+                        <td>@(string.IsNullOrEmpty(user.FirstName) && string.IsNullOrEmpty(user.LastName) ? "Unknown" : $"{user.FirstName} {user.LastName}")</td>
+                        <td>@user.Email</td>
+                        <td>
+                            @if (user.Roles.Any())
+                            {
+                                @string.Join(", ", user.Roles)
+                            }
+                            else
+                            {
+                                <span class="text-muted">No roles</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2 align-items-center">
+                                <select class="form-select form-select-sm" style="width: auto;" @onchange="@(e => HandleRoleChange(user, e.Value?.ToString()))">
+                                    <option value="">Select role...</option>
+                                    <option value="@RoleNames.Admin">Admin</option>
+                                    <option value="@RoleNames.Speaker">Speaker</option>
+                                </select>
+                                @if (user.Roles.Contains(RoleNames.Admin))
+                                {
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            @onclick="() => RemoveRole(user, RoleNames.Admin)"
+                                            disabled="@IsCurrentUser(user.Id)">
+                                        Remove Admin
+                                    </button>
+                                }
+                                @if (user.Roles.Contains(RoleNames.Speaker))
+                                {
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            @onclick="() => RemoveRole(user, RoleNames.Speaker)">
+                                        Remove Speaker
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-3">@_errorMessage</div>
+}
+
+@code {
+    private List<UserWithRolesDto>? _users;
+    private string? _errorMessage;
+    private int _currentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var currentUser = await UserService.GetCurrentUserAsync();
+            if (currentUser != null)
+            {
+                _currentUserId = currentUser.Id;
+            }
+
+            _users = (await UserService.GetAllUsersAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to load users: {ex.Message}";
+        }
+    }
+
+    private async Task HandleRoleChange(UserWithRolesDto user, string? role)
+    {
+        if (string.IsNullOrEmpty(role)) return;
+
+        if (user.Roles.Contains(role))
+        {
+            // Role already assigned, don't add again
+            return;
+        }
+
+        var success = await UserService.AddRoleAsync(user.Id, role);
+        if (success)
+        {
+            user.Roles.Add(role);
+            ToastService.ShowSuccess($"Added {role} role to {user.Email}", "Success");
+        }
+        else
+        {
+            ToastService.ShowError("Failed to add role", "Error");
+        }
+    }
+
+    private async Task RemoveRole(UserWithRolesDto user, string role)
+    {
+        if (user.Id == _currentUserId && role == RoleNames.Admin)
+        {
+            _errorMessage = "You cannot remove your own Admin role";
+            return;
+        }
+
+        var success = await UserService.RemoveRoleAsync(user.Id, role);
+        if (success)
+        {
+            user.Roles.Remove(role);
+            ToastService.ShowSuccess($"Removed {role} role from {user.Email}", "Success");
+        }
+        else
+        {
+            ToastService.ShowError("Failed to remove role", "Error");
+        }
+    }
+
+    private bool IsCurrentUser(int userId) => userId == _currentUserId;
+}

@@ -20,6 +20,7 @@
     -->
   <ItemGroup>
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.3.3" />
+    <PackageVersion Include="Markdig" Version="0.41.0" />
     <PackageVersion Include="Aspire.Hosting.EntityFrameworkCore" Version="13.3.3-preview.1.26264.13" />
     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.3.3" />
     <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.3.3" />

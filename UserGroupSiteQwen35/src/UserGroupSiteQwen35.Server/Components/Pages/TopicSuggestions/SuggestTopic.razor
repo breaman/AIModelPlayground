@@ -1,0 +1,62 @@
+@page "/topics/suggest"
+@attribute [Authorize]
+@using UserGroupSiteQwen35.Data.Models
+@using UserGroupSiteQwen35.Client.Services
+@inject ITopicSuggestionClientService TopicService
+@inject NavigationManager Navigation
+@inject UserGroupSiteQwen35.Client.Services.ToastService ToastService
+
+<PageTitle>Suggest Topic</PageTitle>
+
+<h3>Suggest a Topic</h3>
+
+<div class="row">
+    <div class="col-md-8">
+        <form @onsubmit="SubmitSuggestion">
+            <div class="mb-3">
+                <label class="form-label">Title *</label>
+                <input type="text" class="form-control" @bind="_suggestion.Title" @bind:event="oninput" required maxlength="200" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <MarkdownEditor @bind-Value="_suggestion.Description" />
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Submit Suggestion</button>
+                <a href="/topics" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-3">@_errorMessage</div>
+}
+
+@code {
+    private TopicSuggestion _suggestion = new();
+    private string? _errorMessage;
+
+    private async Task SubmitSuggestion()
+    {
+        if (string.IsNullOrWhiteSpace(_suggestion.Title))
+        {
+            _errorMessage = "Title is required";
+            return;
+        }
+
+        try
+        {
+            await TopicService.CreateSuggestionAsync(_suggestion);
+            ToastService.ShowSuccess("Topic suggestion submitted", "Success");
+            Navigation.NavigateTo("/topics");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to submit suggestion: {ex.Message}";
+        }
+    }
+}

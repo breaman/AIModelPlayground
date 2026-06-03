@@ -5,19 +5,49 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
-                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                        <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
                     </NavLink>
                 </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/topics">
+                        <span class="bi bi-lightbulb" aria-hidden="true"></span> Topic Suggestions
+                    </NavLink>
+                </li>
+                <AuthorizeView Roles="Speaker,Admin">
+                    <Authorized>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="bi bi-gear" aria-hidden="true"></span> Admin
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                                <li>
+                                    <NavLink class="dropdown-item" href="/admin/events">
+                                        <span class="bi bi-calendar-event" aria-hidden="true"></span> Events
+                                    </NavLink>
+                                </li>
+                                <AuthorizeView Roles="Admin">
+                                    <Authorized Context="adminContext">
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/admin/users">
+                                                <span class="bi bi-people" aria-hidden="true"></span> Users
+                                            </NavLink>
+                                        </li>
+                                    </Authorized>
+                                </AuthorizeView>
+                            </ul>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
             </ul>
             <ul class="navbar-nav ms-auto">
                 <AuthorizeView>
                     <Authorized>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span class="bi bi-person-circle" aria-hidden="true"></span> Welcome, @FirstName
+                                <span class="bi bi-person-circle" aria-hidden="true"></span> @FirstName
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li>

@@ -1,0 +1,11 @@
+.table {
+    margin-top: 1rem;
+}
+
+.form-select {
+    min-width: 120px;
+}
+
+.btn {
+    white-space: nowrap;
+}

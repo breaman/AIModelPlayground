@@ -1,0 +1,70 @@
+@using Markdig
+
+@inherits ComponentBase
+
+<div class="markdown-editor">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(IsPreviewMode ? "" : "active")"
+                    type="button"
+                    role="tab"
+                    @onclick="() => SetPreviewMode(false)">
+                Edit
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(IsPreviewMode ? "active" : "")"
+                    type="button"
+                    role="tab"
+                    @onclick="() => SetPreviewMode(true)">
+                Preview
+            </button>
+        </li>
+    </ul>
+    <div class="tab-content border border-top-0 p-3" style="min-height: 200px;">
+        @if (IsPreviewMode)
+        {
+            <div class="markdown-preview">
+                @((MarkupString)RenderedMarkdown)
+            </div>
+        }
+        else
+        {
+            <textarea class="form-control border-0"
+                      style="width: 100%; min-height: 200px; resize: vertical;"
+                      @bind="CurrentValue"
+                      @bind:event="oninput"
+                      placeholder="Enter markdown here..."></textarea>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    private bool IsPreviewMode { get; set; } = false;
+
+    private string? CurrentValue
+    {
+        get => Value;
+        set
+        {
+            if (Value != value)
+            {
+                Value = value;
+                ValueChanged.InvokeAsync(value);
+            }
+        }
+    }
+
+    private string RenderedMarkdown => Markdown.ToHtml(Value ?? string.Empty);
+
+    private void SetPreviewMode(bool preview)
+    {
+        IsPreviewMode = preview;
+    }
+}

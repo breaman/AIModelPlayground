@@ -1,0 +1,12 @@
+.form-label {
+    font-weight: 500;
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.btn {
+    min-width: 100px;
+}

@@ -1,0 +1,32 @@
+.event-description :deep(h1),
+.event-description :deep(h2),
+.event-description :deep(h3),
+.event-description :deep(h4),
+.event-description :deep(h5),
+.event-description :deep(h6) {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.event-description :deep(p) {
+    margin-bottom: 1rem;
+}
+
+.event-description :deep(ul),
+.event-description :deep(ol) {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.event-description :deep(pre) {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+}
+
+.event-description :deep(blockquote) {
+    border-left: 4px solid #dee2e6;
+    padding-left: 1rem;
+    color: #6c757d;
+}
