@@ -6,8 +6,10 @@ using UserGroupSiteOpus48.Data.Models;
 using UserGroupSiteOpus48.Server.Components;
 using UserGroupSiteOpus48.Server.Components.Account;
 using UserGroupSiteOpus48.Server.Components.Email;
+using UserGroupSiteOpus48.Server.Endpoints;
 using UserGroupSiteOpus48.Server.Services;
 using UserGroupSiteOpus48.ServiceDefaults;
+using UserGroupSiteOpus48.Shared.Authorization;
 using UserGroupSiteOpus48.Shared.Services;
 
 using Microsoft.AspNetCore.Identity;
@@ -50,7 +52,21 @@ try
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
         .AddIdentityCookies();
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        // Admin-only operations (user management, event creation).
+        options.AddPolicy(Policies.AdminOnly, policy => policy.RequireRole(RoleNames.Admin));
+
+        // Event editing entry points: any admin or speaker (per-event check happens in the service).
+        options.AddPolicy(Policies.EventEditors,
+            policy => policy.RequireRole(RoleNames.Admin, RoleNames.Speaker));
+    });
+
+    // Server data services need the current user's ClaimsPrincipal for role checks.
+    builder.Services.AddHttpContextAccessor();
+
+    // RFC 9457 problem-details responses for unhandled API errors.
+    builder.Services.AddProblemDetails();
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
@@ -82,6 +98,16 @@ try
     builder.Services.AddScoped<IUserService, HttpUserService>();
     builder.Services.AddScoped<IToastService, ToastService>();
 
+    // Dual-mode services: the Server implementations hit the database directly and are used by the
+    // API endpoints and during Blazor pre-render (the Client registers HTTP-backed versions).
+    builder.Services.AddScoped<IEventService, ServerEventService>();
+    builder.Services.AddScoped<ITopicService, ServerTopicService>();
+    builder.Services.AddScoped<IUserAdminService, ServerUserAdminService>();
+
+    // Bind bootstrap admin configuration used by DbSeeder.
+    builder.Services.Configure<BootstrapAdminOptions>(
+        builder.Configuration.GetSection(BootstrapAdminOptions.SectionName));
+
     // Add route configuration to enforce lowercase URLs for better SEO
     builder.Services.Configure<RouteOptions>(options =>
     {
@@ -91,6 +117,13 @@ try
     });
 
     var app = builder.Build();
+
+    // Seed roles and the bootstrap admin on startup (migrations are applied by Aspire beforehand).
+    // Skipped during EF design-time tooling (ef.dll) which only needs the model.
+    if (!isMigrations)
+    {
+        await DbSeeder.SeedAsync(app.Services);
+    }
 
     app.MapDefaultEndpoints();
 
@@ -121,6 +154,11 @@ try
         .AddAdditionalAssemblies(typeof(UserGroupSiteOpus48.Client._Imports).Assembly);
 
     app.MapAdditionalIdentityEndpoints();
+
+    // Application API endpoints consumed by the WebAssembly client.
+    app.MapEventEndpoints();
+    app.MapTopicEndpoints();
+    app.MapUserAdminEndpoints();
 
     app.Run();
 }

@@ -1,3 +1,5 @@
+using UserGroupSiteOpus48.Shared.Authorization;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -9,6 +11,9 @@ public partial class NavMenu : ComponentBase
     private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
 
     private string FirstName { get; set; } = "";
+
+    /// <summary>Comma-separated roles allowed to reach the event-editing areas.</summary>
+    private static string EditorRoles => $"{RoleNames.Admin},{RoleNames.Speaker}";
 
     protected override async Task OnInitializedAsync()
     {

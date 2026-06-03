@@ -60,6 +60,38 @@
   field-sizing: content
 }
 
+// Rendered Markdown (event/topic descriptions and the editor's live preview). Keep a minimum
+// height on the preview so an empty preview tab doesn't collapse to nothing.
+.markdown-body,
+.markdown-preview {
+  img { max-width: 100%; }
+
+  > :last-child { margin-bottom: 0; }
+
+  pre {
+    padding: 0.75rem;
+    background-color: var(--bs-secondary-bg);
+    border-radius: var(--bs-border-radius);
+    overflow-x: auto;
+  }
+
+  blockquote {
+    padding-left: 1rem;
+    border-left: 0.25rem solid var(--bs-border-color);
+    color: var(--bs-secondary-color);
+  }
+}
+
+.markdown-preview {
+  min-height: 4rem;
+}
+
+// Use buttons for the Markdown Edit/Preview tabs so they don't submit the form; reset their look.
+.nav-tabs .nav-link {
+  border-color: transparent;
+  background: none;
+}
+
 #blazor-error-ui {
   color-scheme: light dark;
   background: lightyellow;

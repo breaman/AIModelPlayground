@@ -19,4 +19,7 @@
     <Project Path="src/UserGroupSiteOpus48.Server/UserGroupSiteOpus48.Server.csproj" />
     <Project Path="src/UserGroupSiteOpus48.Shared/UserGroupSiteOpus48.Shared.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UserGroupSiteOpus48.Tests/UserGroupSiteOpus48.Tests.csproj" />
+  </Folder>
 </Solution>

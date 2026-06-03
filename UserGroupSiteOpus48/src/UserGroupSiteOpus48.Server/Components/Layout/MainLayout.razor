@@ -3,7 +3,17 @@
 
 <NavMenu />
 <main class="mt-2 container">
-    @Body
+    <ErrorBoundary>
+        <ChildContent>
+            @Body
+        </ChildContent>
+        <ErrorContent>
+            <div class="alert alert-danger my-3" role="alert">
+                <h4 class="alert-heading">Something went wrong</h4>
+                <p class="mb-0">An unexpected error occurred while displaying this page. Please try again.</p>
+            </div>
+        </ErrorContent>
+    </ErrorBoundary>
     <ToastContainer @rendermode="InteractiveWebAssembly" />
 </main>
 

@@ -1,0 +1,117 @@
+@page "/events/new"
+@page "/events/edit/{Id:int}"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize(Policy = Policies.EventEditors)]
+
+<PageTitle>@(IsCreate ? "New Event" : "Edit Event")</PageTitle>
+
+<h3 class="mb-3">
+    <span class="bi bi-calendar-event" aria-hidden="true"></span>
+    @(IsCreate ? "Create Event" : "Edit Event")
+</h3>
+
+@if (!_loaded)
+{
+    <p><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading…</p>
+}
+else if (Model is null)
+{
+    <div class="alert alert-warning">Event not found.</div>
+}
+else
+{
+    <div>
+        <EditForm Model="Model" OnValidSubmit="OnValidSubmitAsync" FormName="event-edit">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Model.Title" @onblur="OnTitleBlur" id="event-title" class="form-control" placeholder="Title" />
+                <label for="event-title">Title</label>
+                <ValidationMessage For="() => Model.Title" class="text-danger" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Model.Slug" id="event-slug" class="form-control" placeholder="slug" />
+                <label for="event-slug">Slug</label>
+                <ValidationMessage For="() => Model.Slug" class="text-danger" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Model.ShortDescription" id="event-short" class="form-control" placeholder="Short description" />
+                <label for="event-short">Short Description</label>
+                <ValidationMessage For="() => Model.ShortDescription" class="text-danger" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description (Markdown)</label>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link @(_descriptionTab == "edit" ? "active" : "")" @onclick="ShowEditTab">Edit</button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link @(_descriptionTab == "preview" ? "active" : "")" @onclick="ShowPreviewTab">Preview</button>
+                    </li>
+                </ul>
+                <div class="border border-top-0 rounded-bottom p-2">
+                    @if (_descriptionTab == "edit")
+                    {
+                        <InputTextArea @bind-Value="Model.Description" id="event-description" class="form-control" rows="8" placeholder="Write Markdown here…" />
+                    }
+                    else
+                    {
+                        <div class="markdown-preview">@((MarkupString)MarkdownRenderer.ToHtml(Model.Description))</div>
+                    }
+                </div>
+                <ValidationMessage For="() => Model.Description" class="text-danger" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="Model.EventDateTime" id="event-datetime" class="form-control" placeholder="Date and time" />
+                <label for="event-datetime">Date &amp; Time</label>
+                <ValidationMessage For="() => Model.EventDateTime" class="text-danger" />
+            </div>
+
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Model.Location" id="event-location" class="form-control" placeholder="Location" />
+                <label for="event-location">Location</label>
+                <ValidationMessage For="() => Model.Location" class="text-danger" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Speakers</label>
+                @if (Speakers is null || Speakers.Length == 0)
+                {
+                    <p class="text-muted mb-0">No users are in the Speaker role yet.</p>
+                }
+                else
+                {
+                    <div class="row">
+                        @foreach (var speaker in Speakers)
+                        {
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="speaker-@speaker.Id"
+                                           checked="@Model.SpeakerUserIds.Contains(speaker.Id)"
+                                           @onchange="e => ToggleSpeaker(speaker.Id, (bool)e.Value!)" />
+                                    <label class="form-check-label" for="speaker-@speaker.Id">@speaker.DisplayName</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                <ValidationMessage For="() => Model.SpeakerUserIds" class="text-danger" />
+            </div>
+
+            <div class="form-check form-switch mb-3">
+                <InputCheckbox @bind-Value="Model.IsPublished" id="event-published" class="form-check-input" role="switch" />
+                <label class="form-check-label" for="event-published">Published</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" disabled="@_saving">
+                <span class="bi bi-save" aria-hidden="true"></span> @(_saving ? "Saving…" : "Save")
+            </button>
+            <a class="btn btn-outline-secondary" href="/events/manage">Cancel</a>
+        </EditForm>
+    </div>
+}

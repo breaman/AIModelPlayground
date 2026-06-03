@@ -1,0 +1,79 @@
+@page "/topics"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize]
+
+<PageTitle>Topic Suggestions</PageTitle>
+
+<h3 class="mb-3"><span class="bi bi-lightbulb" aria-hidden="true"></span> Topic Suggestions</h3>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Suggest a topic</h5>
+        <EditForm Model="NewTopic" OnValidSubmit="SuggestAsync" FormName="suggest-topic">
+            <DataAnnotationsValidator />
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="NewTopic.Title" id="topic-title" class="form-control" placeholder="Title" />
+                <label for="topic-title">Title</label>
+                <ValidationMessage For="() => NewTopic.Title" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputTextArea @bind-Value="NewTopic.Description" id="topic-description" class="form-control" rows="3" placeholder="Optional details (Markdown)" />
+                <label for="topic-description">Description (optional, Markdown)</label>
+                <ValidationMessage For="() => NewTopic.Description" class="text-danger" />
+            </div>
+            <button type="submit" class="btn btn-primary" disabled="@_submitting">
+                <span class="bi bi-plus-lg" aria-hidden="true"></span> Suggest
+            </button>
+        </EditForm>
+    </div>
+</div>
+
+@if (TopicList is null)
+{
+    <p><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading topics…</p>
+}
+else if (TopicList.Length == 0)
+{
+    <p class="text-muted">No topics suggested yet. Be the first!</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var topic in TopicList)
+        {
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="me-3">
+                        <h5 class="mb-1">@topic.Title</h5>
+                        @if (!string.IsNullOrWhiteSpace(topic.DescriptionHtml))
+                        {
+                            <div class="markdown-body">@((MarkupString)topic.DescriptionHtml)</div>
+                        }
+                        <small class="text-muted">Suggested by @topic.SuggestedByName</small>
+                    </div>
+                    <div class="text-end text-nowrap">
+                        <button class="btn btn-sm @(topic.CurrentUserHasVoted ? "btn-success" : "btn-outline-success")"
+                                disabled="@(topic.CurrentUserHasVoted || _busyTopicId == topic.Id)"
+                                @onclick="() => VoteAsync(topic.Id)">
+                            <span class="bi bi-hand-thumbs-up" aria-hidden="true"></span> @topic.VoteCount
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    @if (topic.VolunteerUserId is not null)
+                    {
+                        <span class="badge text-bg-info"><span class="bi bi-mic" aria-hidden="true"></span> Volunteer: @topic.VolunteerName</span>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-outline-primary"
+                                disabled="@(_busyTopicId == topic.Id)"
+                                @onclick="() => VolunteerAsync(topic.Id)">
+                            <span class="bi bi-hand-index" aria-hidden="true"></span> Volunteer to speak
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,51 @@
+@page "/events/{Slug}"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>@(Event?.Title ?? "Event")</PageTitle>
+
+@if (!_loaded)
+{
+    <p><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading…</p>
+}
+else if (Event is null)
+{
+    <div class="alert alert-warning">
+        Event not found. <a href="/">Back to events</a>.
+    </div>
+}
+else
+{
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Events</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Event.Title</li>
+        </ol>
+    </nav>
+
+    <h2>@Event.Title</h2>
+
+    <div class="mb-3 text-muted">
+        @if (Event.EventDateTime is not null)
+        {
+            <span class="me-3"><span class="bi bi-clock" aria-hidden="true"></span> @Event.EventDateTime.Value.ToString("f")</span>
+        }
+        @if (!string.IsNullOrWhiteSpace(Event.Location))
+        {
+            <span><span class="bi bi-geo-alt" aria-hidden="true"></span> @Event.Location</span>
+        }
+    </div>
+
+    @if (Event.Speakers.Count > 0)
+    {
+        <p><strong>Speakers:</strong> @string.Join(", ", Event.Speakers.Select(s => s.DisplayName))</p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Event.DescriptionHtml))
+    {
+        <div class="markdown-body">@((MarkupString)Event.DescriptionHtml)</div>
+    }
+    else if (!string.IsNullOrWhiteSpace(Event.ShortDescription))
+    {
+        <p>@Event.ShortDescription</p>
+    }
+}

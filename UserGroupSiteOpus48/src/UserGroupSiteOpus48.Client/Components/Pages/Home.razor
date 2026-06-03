@@ -1,0 +1,50 @@
+@page "/"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Upcoming Events</PageTitle>
+
+<h3 class="mb-3"><span class="bi bi-calendar-week" aria-hidden="true"></span> Events</h3>
+
+@if (Events is null)
+{
+    <p><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading events…</p>
+}
+else if (Events.Length == 0)
+{
+    <p class="text-muted">No events have been published yet. Check back soon!</p>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var ev in Events)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">
+                            <a href="/events/@ev.Slug" class="text-decoration-none">@ev.Title</a>
+                        </h5>
+                        @if (ev.EventDateTime is not null)
+                        {
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                <span class="bi bi-clock" aria-hidden="true"></span> @ev.EventDateTime.Value.ToString("f")
+                            </h6>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(ev.Location))
+                        {
+                            <p class="mb-2 text-muted"><span class="bi bi-geo-alt" aria-hidden="true"></span> @ev.Location</p>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(ev.ShortDescription))
+                        {
+                            <p class="card-text">@ev.ShortDescription</p>
+                        }
+                        @if (ev.SpeakerNames.Count > 0)
+                        {
+                            <p class="card-text mt-auto"><span class="bi bi-mic" aria-hidden="true"></span> @string.Join(", ", ev.SpeakerNames)</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -17,4 +17,10 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<IToastService, ToastService>();
 
+// Dual-mode services: on the client these call the server's HTTP API (the Server project
+// registers DB-backed implementations of the same interfaces for pre-render).
+builder.Services.AddScoped<IEventService, ClientEventService>();
+builder.Services.AddScoped<ITopicService, ClientTopicService>();
+builder.Services.AddScoped<IUserAdminService, ClientUserAdminService>();
+
 await builder.Build().RunAsync();

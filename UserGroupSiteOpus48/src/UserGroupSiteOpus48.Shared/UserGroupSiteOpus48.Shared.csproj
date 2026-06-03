@@ -1,6 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Markdig renders Markdown event/topic descriptions to sanitized HTML.
+         Referenced here so both Client (live preview) and Server (stored render)
+         share the same renderer via transitive project references. -->
+    <PackageReference Include="Markdig" />
+  </ItemGroup>
 
 </Project>
