@@ -1,0 +1,66 @@
+@page "/events/{Slug}"
+@using UserGroupSiteSonnet46.Server.Helpers
+
+<PageTitle>@(Event?.Title ?? "Event")</PageTitle>
+
+@if (Event is null)
+{
+    <div class="container py-4">
+        <p class="text-muted">Event not found.</p>
+    </div>
+}
+else
+{
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h1>@Event.Title</h1>
+            <AuthorizeView>
+                <Authorized Context="authCtx">
+                    @if (CanEdit)
+                    {
+                        <a href="/events/@Event.Id/edit" class="btn btn-outline-secondary btn-sm">
+                            <span class="bi bi-pencil me-1" aria-hidden="true"></span>Edit
+                        </a>
+                    }
+                </Authorized>
+            </AuthorizeView>
+        </div>
+
+        <div class="text-muted mb-3">
+            @if (Event.EventDateTime.HasValue)
+            {
+                <div class="mb-1">
+                    <span class="bi bi-calendar-event me-1" aria-hidden="true"></span>
+                    @Event.EventDateTime.Value.ToString("dddd, MMMM d, yyyy 'at' h:mm tt")
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Event.Location))
+            {
+                <div class="mb-1">
+                    <span class="bi bi-geo-alt me-1" aria-hidden="true"></span>
+                    @Event.Location
+                </div>
+            }
+            @if (Event.Speakers.Count > 0)
+            {
+                <div>
+                    <span class="bi bi-person me-1" aria-hidden="true"></span>
+                    @string.Join(", ", Event.Speakers.Select(s => $"{s.FirstName} {s.LastName}".Trim()))
+                </div>
+            }
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Event.Description))
+        {
+            <div class="event-description">
+                @MarkdownRenderer.Render(Event.Description)
+            </div>
+        }
+
+        <div class="mt-4">
+            <a href="/" class="btn btn-outline-secondary btn-sm">
+                <span class="bi bi-arrow-left me-1" aria-hidden="true"></span>Back to Events
+            </a>
+        </div>
+    </div>
+}

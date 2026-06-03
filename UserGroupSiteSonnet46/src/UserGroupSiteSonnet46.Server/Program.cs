@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Security.Claims;
 
 using UserGroupSiteSonnet46.Client.Services;
 using UserGroupSiteSonnet46.Data.Interfaces;
@@ -50,7 +51,12 @@ try
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
         .AddIdentityCookies();
-    builder.Services.AddAuthorization();
+
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+        options.AddPolicy("AuthenticatedUser", policy => policy.RequireAuthenticatedUser());
+    });
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
@@ -82,6 +88,11 @@ try
     builder.Services.AddScoped<IUserService, HttpUserService>();
     builder.Services.AddScoped<IToastService, ToastService>();
 
+    // Feature services — server implementations used for SSR pre-rendering and API handlers
+    builder.Services.AddScoped<IUserManagementService, ServerUserManagementService>();
+    builder.Services.AddScoped<IEventService, ServerEventService>();
+    builder.Services.AddScoped<ITopicService, ServerTopicService>();
+
     // Add route configuration to enforce lowercase URLs for better SEO
     builder.Services.Configure<RouteOptions>(options =>
     {
@@ -91,6 +102,9 @@ try
     });
 
     var app = builder.Build();
+
+    // Seed roles and any startup data
+    await SeedRolesAsync(app);
 
     app.MapDefaultEndpoints();
 
@@ -116,6 +130,12 @@ try
     app.UseAntiforgery();
     app.MapStaticAssets();
 
+    // --- API Endpoints ---
+
+    MapUserApiEndpoints(app);
+    MapEventApiEndpoints(app);
+    MapTopicApiEndpoints(app);
+
     app.MapRazorComponents<App>()
         .AddInteractiveWebAssemblyRenderMode()
         .AddAdditionalAssemblies(typeof(UserGroupSiteSonnet46.Client._Imports).Assembly);
@@ -134,3 +154,140 @@ finally
     Log.Information("Shut down complete");
     Log.CloseAndFlush();
 }
+
+// ---------------------------------------------------------------------------
+// Role seeding
+// ---------------------------------------------------------------------------
+
+static async Task SeedRolesAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+
+    foreach (var roleName in new[] { "Admin", "Speaker" })
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            await roleManager.CreateAsync(new Role { Name = roleName });
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// API: Users (/api/users)
+// ---------------------------------------------------------------------------
+
+static void MapUserApiEndpoints(WebApplication app)
+{
+    var group = app.MapGroup("/api/users").RequireAuthorization("AdminOnly");
+
+    group.MapGet("/", async (IUserManagementService service) =>
+        Results.Ok(await service.GetAllUsersAsync()));
+
+    group.MapPost("/{userId:int}/roles", async (
+        int userId,
+        RoleChangeRequest request,
+        IUserManagementService service,
+        ClaimsPrincipal caller) =>
+    {
+        // Prevent an admin from removing their own Admin role
+        var callerIdStr = caller.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (int.TryParse(callerIdStr, out var callerId)
+            && callerId == userId
+            && request.Role == "Admin"
+            && !request.Enabled)
+        {
+            return Results.BadRequest("You cannot remove your own Admin role.");
+        }
+
+        await service.SetRoleAsync(userId, request.Role, request.Enabled);
+        return Results.Ok();
+    });
+}
+
+// ---------------------------------------------------------------------------
+// API: Events (/api/events)
+// ---------------------------------------------------------------------------
+
+static void MapEventApiEndpoints(WebApplication app)
+{
+    // Public endpoints
+    app.MapGet("/api/events/published", async (IEventService service) =>
+        Results.Ok(await service.GetPublishedEventsAsync()));
+
+    app.MapGet("/api/events/by-slug/{slug}", async (string slug, IEventService service) =>
+    {
+        var ev = await service.GetEventBySlugAsync(slug);
+        return ev is null ? Results.NotFound() : Results.Ok(ev);
+    });
+
+    // Authenticated endpoints
+    var auth = app.MapGroup("/api/events").RequireAuthorization();
+
+    auth.MapGet("/", async (IEventService service) =>
+        Results.Ok(await service.GetAllEventsAsync()));
+
+    auth.MapGet("/{id:int}", async (int id, IEventService service) =>
+    {
+        var ev = await service.GetEventByIdAsync(id);
+        return ev is null ? Results.NotFound() : Results.Ok(ev);
+    });
+
+    auth.MapPost("/", async (EventSaveDto dto, IEventService service) =>
+        Results.Ok(await service.SaveEventAsync(dto)));
+
+    auth.MapPut("/{id:int}", async (int id, EventSaveDto dto, IEventService service) =>
+    {
+        var updated = dto with { Id = id };
+        return Results.Ok(await service.SaveEventAsync(updated));
+    });
+
+    // Admin-only: speaker list for the assignment dropdown
+    auth.MapGet("/speakers", async (IEventService service) =>
+        Results.Ok(await service.GetSpeakersAsync()))
+        .RequireAuthorization("AdminOnly");
+}
+
+// ---------------------------------------------------------------------------
+// API: Topics (/api/topics)
+// ---------------------------------------------------------------------------
+
+static void MapTopicApiEndpoints(WebApplication app)
+{
+    var group = app.MapGroup("/api/topics").RequireAuthorization();
+
+    group.MapGet("/", async (ITopicService service) =>
+        Results.Ok(await service.GetTopicsAsync()));
+
+    group.MapPost("/", async (TopicRequest request, ITopicService service) =>
+        Results.Ok(await service.SuggestTopicAsync(request.Title, request.Description)));
+
+    group.MapPost("/{id:int}/vote", async (int id, ITopicService service) =>
+    {
+        await service.VoteAsync(id);
+        return Results.Ok();
+    });
+
+    group.MapPost("/{id:int}/volunteer", async (int id, ITopicService service) =>
+    {
+        try
+        {
+            await service.VolunteerAsync(id);
+            return Results.Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.BadRequest(ex.Message);
+        }
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Local request types
+// ---------------------------------------------------------------------------
+
+/// <summary>Body for POST /api/users/{userId}/roles.</summary>
+record RoleChangeRequest(string Role, bool Enabled);
+
+/// <summary>Body for POST /api/topics.</summary>
+record TopicRequest(string Title, string? Description);

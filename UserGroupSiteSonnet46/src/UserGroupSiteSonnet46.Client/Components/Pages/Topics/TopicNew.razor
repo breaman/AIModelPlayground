@@ -1,0 +1,43 @@
+@page "/topics/new"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize]
+
+<PageTitle>Suggest a Topic</PageTitle>
+
+<div class="col-md-8 col-lg-6">
+    <h2 class="mb-4">Suggest a Topic</h2>
+
+    <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger mb-3" />
+
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="Model.Title"
+                       id="title"
+                       class="form-control"
+                       placeholder="Topic title" />
+            <label for="title">Title</label>
+            <ValidationMessage For="() => Model.Title" class="text-danger" />
+        </div>
+
+        <div class="form-floating mb-4">
+            <InputTextArea @bind-Value="Model.Description"
+                           id="description"
+                           class="form-control"
+                           placeholder="Description"
+                           style="height: 120px" />
+            <label for="description">Description (optional)</label>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" disabled="@_submitting">
+                @if (_submitting)
+                {
+                    <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                }
+                Submit
+            </button>
+            <a href="/topics" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </EditForm>
+</div>

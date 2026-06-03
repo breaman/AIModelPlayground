@@ -4,11 +4,15 @@
 
 @if (_recoveryCodes is not null)
 {
-    <ShowRecoveryCodes RecoveryCodes="_recoveryCodes.ToArray()" StatusMessage="@_message" />
+    <div>
+        <ShowRecoveryCodes RecoveryCodes="_recoveryCodes.ToArray()" StatusMessage="@_message" />
+    </div>
 }
 else
 {
-    <StatusMessage Message="@_message" />
+    <div>
+        <StatusMessage Message="@_message" />
+    </div>
     <h3>Configure authenticator app</h3>
     <div>
         <p>To use an authenticator app go through the following steps:</p>

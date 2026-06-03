@@ -1,6 +1,57 @@
 @page "/"
-<h3>Home</h3>
 
-<p>Welcome to your homepage</p>
-<p>With hot reload? Why did it think that worked for some reason?</p>
-<p>Now do I have hot reload?</p>
+<PageTitle>Home</PageTitle>
+
+<div class="container py-4">
+    <h1 class="mb-4">Upcoming Events</h1>
+
+    @if (Events is null)
+    {
+        <p><em>Loading events...</em></p>
+    }
+    else if (Events.Count == 0)
+    {
+        <p class="text-muted">No upcoming events at this time. Check back soon!</p>
+    }
+    else
+    {
+        @foreach (var ev in Events)
+        {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title h4">
+                        <a href="/events/@ev.Slug" class="text-decoration-none">@ev.Title</a>
+                    </h2>
+                    <div class="text-muted small mb-2">
+                        @if (ev.EventDateTime.HasValue)
+                        {
+                            <span class="me-3">
+                                <span class="bi bi-calendar-event me-1" aria-hidden="true"></span>
+                                @ev.EventDateTime.Value.ToString("dddd, MMMM d, yyyy 'at' h:mm tt")
+                            </span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(ev.Location))
+                        {
+                            <span>
+                                <span class="bi bi-geo-alt me-1" aria-hidden="true"></span>
+                                @ev.Location
+                            </span>
+                        }
+                    </div>
+                    @if (ev.Speakers.Count > 0)
+                    {
+                        <div class="text-muted small mb-2">
+                            <span class="bi bi-person me-1" aria-hidden="true"></span>
+                            @string.Join(", ", ev.Speakers.Select(s => $"{s.FirstName} {s.LastName}".Trim()))
+                        </div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(ev.ShortDescription))
+                    {
+                        <p class="card-text">@ev.ShortDescription</p>
+                    }
+                    <a href="/events/@ev.Slug" class="btn btn-outline-primary btn-sm">Read more</a>
+                </div>
+            </div>
+        }
+    }
+</div>

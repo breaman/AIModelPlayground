@@ -1,0 +1,52 @@
+@page "/admin/users"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>User Management</PageTitle>
+
+<h2 class="mb-4">User Management</h2>
+
+@if (Users is null)
+{
+    <div>
+        <p><em>Loading users...</em></p>
+    </div>
+}
+else
+{
+    <div>
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th class="text-center">Admin</th>
+                    <th class="text-center">Speaker</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Users)
+                {
+                    var u = user;
+                    <tr>
+                        <td>@u.FirstName @u.LastName</td>
+                        <td>@u.Email</td>
+                        <td class="text-center">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   checked="@u.IsAdmin"
+                                   disabled="@IsCurrentUser(u.Id)"
+                                   @onchange="e => OnAdminRoleChanged(u, e)" />
+                        </td>
+                        <td class="text-center">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   checked="@u.IsSpeaker"
+                                   @onchange="e => OnSpeakerRoleChanged(u, e)" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

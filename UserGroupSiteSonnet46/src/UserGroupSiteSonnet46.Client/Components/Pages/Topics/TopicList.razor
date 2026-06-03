@@ -1,0 +1,75 @@
+@page "/topics"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize]
+
+<PageTitle>Topic Suggestions</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Topic Suggestions</h2>
+    <a href="/topics/new" class="btn btn-primary">
+        <span class="bi bi-plus-circle me-1" aria-hidden="true"></span> Suggest a Topic
+    </a>
+</div>
+
+@if (Topics is null)
+{
+    <div>
+        <p><em>Loading topics...</em></p>
+    </div>
+}
+else if (Topics.Count == 0)
+{
+    <div>
+        <p class="text-muted">No topics yet. Be the first to suggest one!</p>
+    </div>
+}
+else
+{
+    <div>
+        @foreach (var topic in Topics)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1 me-3">
+                            <h5 class="card-title mb-1">@topic.Title</h5>
+                            @if (!string.IsNullOrWhiteSpace(topic.Description))
+                            {
+                                <p class="card-text text-muted small mb-1">@topic.Description</p>
+                            }
+                            <div class="text-muted small">
+                                Suggested by @topic.SuggestedBy.FirstName @topic.SuggestedBy.LastName
+                                @if (topic.Volunteer is not null)
+                                {
+                                    <span class="ms-2 badge bg-success">
+                                        Volunteer: @topic.Volunteer.FirstName @topic.Volunteer.LastName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="ms-2 badge bg-light text-dark border">No volunteer yet</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column align-items-center gap-2 ms-2" style="min-width: 80px">
+                            <button class="btn btn-sm @(topic.HasCurrentUserVoted ? "btn-success" : "btn-outline-success")"
+                                    disabled="@topic.HasCurrentUserVoted"
+                                    @onclick="() => Vote(topic)">
+                                <span class="bi bi-hand-thumbs-up me-1" aria-hidden="true"></span>
+                                @topic.VoteCount
+                            </button>
+                            @if (topic.Volunteer is null)
+                            {
+                                <button class="btn btn-sm btn-outline-primary"
+                                        @onclick="() => Volunteer(topic)">
+                                    <span class="bi bi-person-raised-hand me-1" aria-hidden="true"></span>
+                                    Volunteer
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
