@@ -1,0 +1,19 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.3.3">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.EntityFrameworkCore" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\UserGroupSiteNemoTron3.Data\UserGroupSiteNemoTron3.Data.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteNemoTron3.Server\UserGroupSiteNemoTron3.Server.csproj" />
+    <ProjectReference Include="..\UserGroupSiteNemoTron3.ServiceDefaults\UserGroupSiteNemoTron3.ServiceDefaults.csproj" IsAspireProjectResource="false" />
+  </ItemGroup>
+
+</Project>
