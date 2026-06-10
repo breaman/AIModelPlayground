@@ -6,6 +6,7 @@ using UserGroupSiteFable5.Data.Models;
 using UserGroupSiteFable5.Server.Components;
 using UserGroupSiteFable5.Server.Components.Account;
 using UserGroupSiteFable5.Server.Components.Email;
+using UserGroupSiteFable5.Server.Endpoints;
 using UserGroupSiteFable5.Server.Services;
 using UserGroupSiteFable5.ServiceDefaults;
 using UserGroupSiteFable5.Shared.Services;
@@ -50,7 +51,11 @@ try
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
         .AddIdentityCookies();
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+        options.AddPolicy("AdminOrSpeaker", policy => policy.RequireRole("Admin", "Speaker"));
+    });
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
@@ -79,8 +84,13 @@ try
         .AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>();
 
     builder.Services.AddSingleton<IEmailSender<User>, IdentityNoOpEmailSender>();
+    builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<IUserService, HttpUserService>();
     builder.Services.AddScoped<IToastService, ToastService>();
+    builder.Services.AddScoped<IEventAuthorizationService, EventAuthorizationService>();
+    builder.Services.AddScoped<IEventService, EventService>();
+    builder.Services.AddScoped<IUserAdminService, UserAdminService>();
+    builder.Services.AddScoped<ITopicService, TopicService>();
 
     // Add route configuration to enforce lowercase URLs for better SEO
     builder.Services.Configure<RouteOptions>(options =>
@@ -121,6 +131,17 @@ try
         .AddAdditionalAssemblies(typeof(UserGroupSiteFable5.Client._Imports).Assembly);
 
     app.MapAdditionalIdentityEndpoints();
+
+    app.MapEventEndpoints();
+    app.MapUserEndpoints();
+    app.MapTopicEndpoints();
+
+    // Seed the dev-only admin account once the schema is in place (migrations are applied
+    // by the Aspire migration service before this app starts).
+    if (app.Environment.IsDevelopment() && !isMigrations)
+    {
+        await IdentityDataSeeder.SeedDevAdminAsync(app.Services);
+    }
 
     app.Run();
 }

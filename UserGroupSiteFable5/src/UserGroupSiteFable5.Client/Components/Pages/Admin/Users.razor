@@ -1,0 +1,62 @@
+@page "/admin/users"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Manage Users</PageTitle>
+
+<h1>Manage Users</h1>
+<p class="text-body-secondary">Grant or revoke the Admin and Speaker roles. You cannot remove your own Admin role.</p>
+
+@if (UserList is null)
+{
+    <div class="d-flex align-items-center gap-2">
+        <div class="spinner-border spinner-border-sm" role="status"></div>
+        <span>Loading users…</span>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Member Since</th>
+                    <th scope="col" class="text-center">Admin</th>
+                    <th scope="col" class="text-center">Speaker</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in UserList)
+                {
+                    <tr>
+                        <td>@user.DisplayName</td>
+                        <td>@user.Email</td>
+                        <td>@user.MemberSince.ToString("MMMM d, yyyy")</td>
+                        <td class="text-center">
+                            <div class="form-check form-switch d-inline-block">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="admin-@user.Id"
+                                       checked="@user.IsAdmin"
+                                       disabled="@(IsSelf(user) || _saving)"
+                                       title="@(IsSelf(user) ? "You cannot remove your own Admin role." : null)"
+                                       @onchange="e => OnAdminChangedAsync(user, (bool)e.Value!)" />
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="form-check form-switch d-inline-block">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                       id="speaker-@user.Id"
+                                       checked="@user.IsSpeaker"
+                                       disabled="@_saving"
+                                       @onchange="e => OnSpeakerChangedAsync(user, (bool)e.Value!)" />
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

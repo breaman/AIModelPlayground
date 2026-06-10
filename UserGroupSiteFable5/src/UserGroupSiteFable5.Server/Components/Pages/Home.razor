@@ -1,6 +1,52 @@
 @page "/"
-<h3>Home</h3>
+@using UserGroupSiteFable5.Server.Services
 
-<p>Welcome to your homepage</p>
-<p>With hot reload? Why did it think that worked for some reason?</p>
-<p>Now do I have hot reload?</p>
+<PageTitle>User Group Meetings</PageTitle>
+
+<h1>Upcoming &amp; Past Meetings</h1>
+<p class="text-body-secondary">Join us — everyone is welcome.</p>
+
+@if (Events is null)
+{
+    <p>Loading…</p>
+}
+else if (Events.Count == 0)
+{
+    <p class="text-body-secondary">No meetings have been announced yet. Check back soon!</p>
+}
+else
+{
+    <div class="d-flex flex-column gap-3">
+        @foreach (var evt in Events)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title fs-4">@evt.Title</h2>
+                    <h3 class="card-subtitle mb-2 text-body-secondary fs-6">
+                        <span class="bi bi-calendar-event" aria-hidden="true"></span>
+                        @(evt.StartsAt?.ToString("dddd, MMMM d, yyyy h:mm tt") ?? "Date TBA")
+                        @if (!string.IsNullOrWhiteSpace(evt.Location))
+                        {
+                            <span> · <span class="bi bi-geo-alt" aria-hidden="true"></span> @evt.Location</span>
+                        }
+                    </h3>
+                    @if (evt.SpeakerNames.Count > 0)
+                    {
+                        <p class="mb-2">
+                            <span class="bi bi-mic" aria-hidden="true"></span>
+                            <strong>@string.Join(", ", evt.SpeakerNames)</strong>
+                        </p>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(evt.ShortDescription))
+                    {
+                        <p class="lead">@evt.ShortDescription</p>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(evt.Description))
+                    {
+                        <div>@MarkdownRenderer.ToHtml(evt.Description)</div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

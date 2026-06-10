@@ -1,0 +1,71 @@
+@page "/events"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin, Speaker")]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Events</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Events</h1>
+    @if (IsAdmin)
+    {
+        <a class="btn btn-primary" href="/events/new">
+            <span class="bi bi-plus-lg" aria-hidden="true"></span> New Event
+        </a>
+    }
+</div>
+
+@if (Events is null)
+{
+    <div class="d-flex align-items-center gap-2">
+        <div class="spinner-border spinner-border-sm" role="status"></div>
+        <span>Loading events…</span>
+    </div>
+}
+else if (Events.Count == 0)
+{
+    <p class="text-body-secondary">No events yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Speakers</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var evt in Events)
+                {
+                    <tr>
+                        <td>@evt.Title</td>
+                        <td>@(evt.StartsAt?.ToString("MMMM d, yyyy h:mm tt") ?? "—")</td>
+                        <td>@(evt.Location ?? "—")</td>
+                        <td>@(evt.SpeakerNames.Count > 0 ? string.Join(", ", evt.SpeakerNames) : "—")</td>
+                        <td>
+                            @if (evt.IsPublished)
+                            {
+                                <span class="badge text-bg-success">Published</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary">Draft</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" href="/events/@evt.Id/edit">
+                                <span class="bi bi-pencil" aria-hidden="true"></span> Edit
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

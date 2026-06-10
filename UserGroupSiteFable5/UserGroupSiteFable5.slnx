@@ -19,4 +19,7 @@
     <Project Path="src/UserGroupSiteFable5.Server/UserGroupSiteFable5.Server.csproj" />
     <Project Path="src/UserGroupSiteFable5.Shared/UserGroupSiteFable5.Shared.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UserGroupSiteFable5.Tests/UserGroupSiteFable5.Tests.csproj" />
+  </Folder>
 </Solution>

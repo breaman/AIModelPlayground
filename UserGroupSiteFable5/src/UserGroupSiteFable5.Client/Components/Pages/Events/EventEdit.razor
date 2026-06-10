@@ -1,0 +1,118 @@
+@page "/events/new"
+@page "/events/{Id:int}/edit"
+@using Microsoft.AspNetCore.Authorization
+@using UserGroupSiteFable5.Client.Components
+@attribute [Authorize(Roles = "Admin, Speaker")]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>@(IsNew ? "New Event" : "Edit Event")</PageTitle>
+
+<h1>@(IsNew ? "New Event" : "Edit Event")</h1>
+
+@if (NotFound)
+{
+    <div class="alert alert-warning" role="alert">
+        This event does not exist or you are not one of its editors.
+    </div>
+}
+else if (Model is null || Speakers is null)
+{
+    <div class="d-flex align-items-center gap-2">
+        <div class="spinner-border spinner-border-sm" role="status"></div>
+        <span>Loading…</span>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-lg-8">
+            <EditForm Model="Model" OnValidSubmit="SaveAsync" FormName="event-edit">
+                <DataAnnotationsValidator />
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Model.Title" id="Model.Title" class="form-control"
+                               placeholder="Title" @onfocusout="OnTitleBlur" />
+                    <label for="Model.Title">Title</label>
+                    <ValidationMessage For="() => Model.Title" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Model.Slug" id="Model.Slug" class="form-control" placeholder="Slug" />
+                    <label for="Model.Slug">Slug</label>
+                    <ValidationMessage For="() => Model.Slug" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Model.ShortDescription" id="Model.ShortDescription" class="form-control"
+                               placeholder="Short description" />
+                    <label for="Model.ShortDescription">Short Description</label>
+                    <ValidationMessage For="() => Model.ShortDescription" class="text-danger" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="Model.Description">Description (Markdown)</label>
+                    <MarkdownEditor @bind-Value="Model.Description" Id="Model.Description" />
+                    <ValidationMessage For="() => Model.Description" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="Model.StartsAt"
+                               id="Model.StartsAt" class="form-control" placeholder="Date and time" />
+                    <label for="Model.StartsAt">Date &amp; Time</label>
+                    <ValidationMessage For="() => Model.StartsAt" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Model.Location" id="Model.Location" class="form-control"
+                               placeholder="Location" />
+                    <label for="Model.Location">Location</label>
+                    <ValidationMessage For="() => Model.Location" class="text-danger" />
+                </div>
+
+                <fieldset class="mb-3">
+                    <legend class="form-label fs-6">Speakers</legend>
+                    @if (!IsAdmin)
+                    {
+                        <p class="form-text mt-0">Only admins can change the speaker list.</p>
+                    }
+                    @if (Speakers.Count == 0)
+                    {
+                        <p class="text-body-secondary fst-italic">
+                            No users hold the Speaker role yet. Assign it on the Manage Users page.
+                        </p>
+                    }
+                    @foreach (var speaker in Speakers)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="speaker-@speaker.Id"
+                                   checked="@Model.SpeakerUserIds.Contains(speaker.Id)"
+                                   disabled="@(!IsAdmin)"
+                                   @onchange="e => ToggleSpeaker(speaker.Id, (bool)e.Value!)" />
+                            <label class="form-check-label" for="speaker-@speaker.Id">@speaker.DisplayName</label>
+                        </div>
+                    }
+                    <ValidationMessage For="() => Model.SpeakerUserIds" class="text-danger" />
+                </fieldset>
+
+                <div class="form-check form-switch mb-3">
+                    <InputCheckbox @bind-Value="Model.IsPublished" id="Model.IsPublished" class="form-check-input" />
+                    <label class="form-check-label" for="Model.IsPublished">Published</label>
+                    <div class="form-text">
+                        Publishing requires a description, date/time, location, and at least one speaker.
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" disabled="@_saving">
+                        @if (_saving)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                        }
+                        Save
+                    </button>
+                    <a class="btn btn-outline-secondary" href="/events">Cancel</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
