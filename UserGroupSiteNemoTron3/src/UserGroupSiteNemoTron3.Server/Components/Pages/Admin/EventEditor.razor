@@ -1,0 +1,100 @@
+@page "/admin/events/create"
+@page "/admin/events/edit/{Id:int}"
+@rendermode InteractiveWebAssembly
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Policy = "SpeakerOrAdmin")]
+@using UserGroupSiteNemoTron3.Shared.DTOs
+@using UserGroupSiteNemoTron3.Shared.Services
+@using UserGroupSiteNemoTron3.Client.Components
+
+<EditForm Model="Model" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="text-danger" />
+
+    <div class="container py-4">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 mb-0">@(IsEdit ? "Edit Event" : "Create Event")</h1>
+                    <a href="/admin/events" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                            <InputText @bind-Value="Model.Title" id="title" class="form-control" placeholder="Event title" />
+                            <ValidationMessage For="() => Model.Title" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="slug" class="form-label">Slug <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">/event/</span>
+                                <InputText @bind-Value="Model.Slug" id="slug" class="form-control" placeholder="auto-generated" @onblur="GenerateSlug" />
+                            </div>
+                            <ValidationMessage For="() => Model.Slug" class="text-danger" />
+                            <div class="form-text">Auto-generated from title on blur. Can be edited.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="shortDescription" class="form-label">Short Description</label>
+                            <InputTextArea @bind-Value="Model.ShortDescription" id="shortDescription" class="form-control" rows="3" placeholder="Brief summary for event listings" />
+                            <ValidationMessage For="() => Model.ShortDescription" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description (Markdown)</label>
+                            <MarkdownEditor @bind-Value="Model.Description" />
+                            <ValidationMessage For="() => Model.Description" class="text-danger" />
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="eventDateTime" class="form-label">Date & Time <span class="text-danger">*</span></label>
+                                <InputDate @bind-Value="Model.EventDateTime" id="eventDateTime" class="form-control" />
+                                <ValidationMessage For="() => Model.EventDateTime" class="text-danger" />
+                            </div>
+                            <div class="col-md-6">
+                                <label for="eventTime" class="form-label">Time <span class="text-danger">*</span></label>
+                                <InputText @bind-Value="EventTime" id="eventTime" type="time" class="form-control" @onchange="UpdateEventDateTime" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
+                            <InputText @bind-Value="Model.Location" id="location" class="form-control" placeholder="Venue name, address, or virtual meeting link" />
+                            <ValidationMessage For="() => Model.Location" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Speakers</label>
+                            <InputSelect @bind-Value="Model.SpeakerUserIds" id="speakers" class="form-select" multiple>
+                                @foreach (var speaker in AvailableSpeakers)
+                                {
+                                    <option value="@speaker.Id">@speaker.FullName</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="() => Model.SpeakerUserIds" class="text-danger" />
+                            <div class="form-text">Hold Ctrl/Cmd to select multiple speakers. First selected is primary.</div>
+                        </div>
+
+                        <div class="mb-3 form-check form-switch">
+                            <InputCheckbox @bind-Value="Model.IsPublished" id="isPublished" class="form-check-input" />
+                            <label class="form-check-label" for="isPublished">Published</label>
+                            <div class="form-text">Published events are visible on the public home page. Requires all fields filled and at least one speaker.</div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary" disabled="@IsSaving">
+                                @(IsSaving ? "Saving..." : (IsEdit ? "Update Event" : "Create Event"))
+                            </button>
+                            <a href="/admin/events" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>

@@ -6,9 +6,12 @@ using UserGroupSiteNemoTron3.Data.Models;
 using UserGroupSiteNemoTron3.Server.Components;
 using UserGroupSiteNemoTron3.Server.Components.Account;
 using UserGroupSiteNemoTron3.Server.Components.Email;
+using UserGroupSiteNemoTron3.Server.Endpoints;
 using UserGroupSiteNemoTron3.Server.Services;
 using UserGroupSiteNemoTron3.ServiceDefaults;
 using UserGroupSiteNemoTron3.Shared.Services;
+
+using Markdig;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -50,7 +53,11 @@ try
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
         .AddIdentityCookies();
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+        options.AddPolicy("SpeakerOrAdmin", policy => policy.RequireRole("Speaker", "Admin"));
+    });
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
@@ -81,6 +88,11 @@ try
     builder.Services.AddSingleton<IEmailSender<User>, IdentityNoOpEmailSender>();
     builder.Services.AddScoped<IUserService, HttpUserService>();
     builder.Services.AddScoped<IToastService, ToastService>();
+
+    // Register application services
+    builder.Services.AddScoped<IEventService, UserGroupSiteNemoTron3.Server.Services.EventService>();
+    builder.Services.AddScoped<ITopicSuggestionService, UserGroupSiteNemoTron3.Server.Services.TopicSuggestionService>();
+    builder.Services.AddScoped<IUserManagementService, UserGroupSiteNemoTron3.Server.Services.UserManagementService>();
 
     // Add route configuration to enforce lowercase URLs for better SEO
     builder.Services.Configure<RouteOptions>(options =>
@@ -121,6 +133,11 @@ try
         .AddAdditionalAssemblies(typeof(UserGroupSiteNemoTron3.Client._Imports).Assembly);
 
     app.MapAdditionalIdentityEndpoints();
+
+    // Map custom API endpoints
+    app.MapEventEndpoints();
+    app.MapTopicSuggestionEndpoints();
+    app.MapUserManagementEndpoints();
 
     app.Run();
 }

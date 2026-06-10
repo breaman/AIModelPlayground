@@ -17,4 +17,9 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<IToastService, ToastService>();
 
+// Register application services
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<ITopicSuggestionService, TopicSuggestionService>();
+builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+
 await builder.Build().RunAsync();

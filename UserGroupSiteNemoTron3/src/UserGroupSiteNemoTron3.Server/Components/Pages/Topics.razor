@@ -1,0 +1,151 @@
+@page "/topics"
+@rendermode InteractiveWebAssembly
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@using UserGroupSiteNemoTron3.Shared.DTOs
+@using UserGroupSiteNemoTron3.Shared.Services
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Topic Suggestions</h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#suggestTopicModal">
+            <i class="bi bi-plus-lg me-1"></i>Suggest Topic
+        </button>
+    </div>
+
+    @if (TopicList == null)
+    {
+        <div class="row">
+            @for (var i = 0; i < 3; i++)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body skeleton-loader">
+                            <div class="skeleton-line skeleton-title"></div>
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line skeleton-short"></div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else if (TopicList.Length == 0)
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-lightbulb-off display-1 text-muted"></i>
+            <h3 class="mt-3">No Topic Suggestions Yet</h3>
+            <p class="text-muted">Be the first to suggest a topic!</p>
+            <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#suggestTopicModal">
+                <i class="bi bi-plus-lg me-1"></i>Suggest Topic
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var topic in TopicList)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">@topic.Title</h5>
+                                <span class="badge bg-primary">@topic.VoteCount votes</span>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(topic.Description))
+                            {
+                                <p class="card-text text-muted small flex-grow-1">@topic.Description</p>
+                            }
+
+                            <div class="mt-3 pt-3 border-top">
+                                @if (topic.VolunteerSpeakerName != null)
+                                {
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="bi bi-person-check me-1"></i>
+                                            Volunteer: <strong>@topic.VolunteerSpeakerName</strong>
+                                        </small>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-outline-success btn-sm w-100 mb-2"
+                                            @onclick="() => Volunteer(topic.Id)"
+                                            disabled="@IsVolunteering">
+                                        <i class="bi bi-person-plus me-1"></i>Volunteer to Speak
+                                    </button>
+                                }
+
+                                <div class="d-flex gap-2">
+                                    <button class="btn @(topic.HasCurrentUserVoted ? "btn-danger" : "btn-outline-danger") btn-sm flex-fill"
+                                            @onclick="() => ToggleVote(topic)"
+                                            disabled="@IsVoting">
+                                        <i class="bi @(topic.HasCurrentUserVoted ? "bi-heart-fill" : "bi-heart") me-1"></i>
+                                        @topic.VoteCount
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Suggest Topic Modal -->
+<div class="modal fade" id="suggestTopicModal" tabindex="-1" aria-labelledby="suggestTopicModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="suggestTopicModalLabel">Suggest a Topic</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <EditForm Model="NewTopic" OnValidSubmit="CreateTopic">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="topicTitle" class="form-label">Title <span class="text-danger">*</span></label>
+                        <InputText @bind-Value="NewTopic.Title" id="topicTitle" class="form-control" placeholder="Topic title" />
+                        <ValidationMessage For="() => NewTopic.Title" class="text-danger" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="topicDescription" class="form-label">Description</label>
+                        <InputTextArea @bind-Value="NewTopic.Description" id="topicDescription" class="form-control" rows="4" placeholder="Optional description" />
+                        <ValidationMessage For="() => NewTopic.Description" class="text-danger" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" disabled="@IsCreating">
+                        @(IsCreating ? "Creating..." : "Submit")
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<style>
+    .skeleton-loader {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: skeleton-loading 1.5s infinite;
+        border-radius: 4px;
+    }
+    .skeleton-title {
+        height: 1.25rem;
+        width: 80%;
+    }
+    .skeleton-short {
+        width: 60%;
+    }
+    @@keyframes skeleton-loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+</style>

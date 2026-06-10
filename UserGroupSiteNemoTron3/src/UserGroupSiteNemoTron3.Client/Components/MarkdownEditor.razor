@@ -1,0 +1,42 @@
+<div class="markdown-editor">
+    <ul class="nav nav-tabs mb-2" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(ActiveTab == "edit" ? "active" : "")"
+                    @onclick="@(() => ActiveTab = "edit")"
+                    id="edit-tab"
+                    data-bs-toggle="tab"
+                    role="tab"
+                    aria-controls="edit"
+                    aria-selected="@(ActiveTab == "edit")">
+                <i class="bi bi-pencil me-1"></i>Edit
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(ActiveTab == "preview" ? "active" : "")"
+                    @onclick="@(() => ActiveTab = "preview")"
+                    id="preview-tab"
+                    data-bs-toggle="tab"
+                    role="tab"
+                    aria-controls="preview"
+                    aria-selected="@(ActiveTab == "preview")">
+                <i class="bi bi-eye me-1"></i>Preview
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade @(ActiveTab == "edit" ? "show active" : "")" id="edit" role="tabpanel" aria-labelledby="edit-tab">
+            <textarea class="form-control markdown-textarea"
+                      @bind-value="Value"
+                      @bind-value:event="oninput"
+                      rows="15"
+                      placeholder="Write your markdown here..."></textarea>
+        </div>
+        <div class="tab-pane fade @(ActiveTab == "preview" ? "show active" : "")" id="preview" role="tabpanel" aria-labelledby="preview-tab">
+            <div class="markdown-preview"
+                 @onclick="@(() => { })"
+                 @onfocusout="RenderPreview">
+            </div>
+        </div>
+    </div>
+</div>
