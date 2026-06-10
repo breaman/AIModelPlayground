@@ -119,3 +119,12 @@ Code structured in the following branch proposal (this may change as I wrie thin
   - pasted the above prompt into the command line
   - once the plan was created, ran `/clear` to clear out the session
   - typed `execute all phases of the plan in the @plan.md file`
+- 9-fable-5
+  - create a UserGroupSiteFable5 directory
+  - navigate to the directory and type `dotnet new breaman.blazor`
+  - launched with `claude`
+  - verify model is set to fable 5
+  - hit `shift-tab` to put it into `accept edits on` mode
+  - pasted the above prompt into the command line
+  - once the plan was created, ran `/clear` to clear out the session
+  - typed `execute all phases of the plan in the @plan.md file`
