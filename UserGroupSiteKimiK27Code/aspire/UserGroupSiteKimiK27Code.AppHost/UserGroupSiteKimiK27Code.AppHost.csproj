@@ -1,0 +1,20 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.3.3">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.EntityFrameworkCore" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" />
+    <PackageReference Include="StreamJsonRpc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\UserGroupSiteKimiK27Code.Data\UserGroupSiteKimiK27Code.Data.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteKimiK27Code.Server\UserGroupSiteKimiK27Code.Server.csproj" />
+    <ProjectReference Include="..\UserGroupSiteKimiK27Code.ServiceDefaults\UserGroupSiteKimiK27Code.ServiceDefaults.csproj" IsAspireProjectResource="false" />
+  </ItemGroup>
+
+</Project>
