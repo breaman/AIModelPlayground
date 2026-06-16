@@ -1,0 +1,19 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.4.4">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.EntityFrameworkCore" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" />
+    <PackageReference Include="StreamJsonRpc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\UserGroupSiteGpt55.Data\UserGroupSiteGpt55.Data.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteGpt55.Server\UserGroupSiteGpt55.Server.csproj" />
+    <ProjectReference Include="..\UserGroupSiteGpt55.ServiceDefaults\UserGroupSiteGpt55.ServiceDefaults.csproj" IsAspireProjectResource="false" />
+  </ItemGroup>
+
+</Project>
