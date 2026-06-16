@@ -1,0 +1,126 @@
+@page "/admin/events/new"
+@page "/admin/events/{EventId:int}/edit"
+@attribute [Authorize(Policy = ApplicationPolicies.EditEvents)]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>@(IsNew ? "New Event" : "Edit Event")</PageTitle>
+
+<section class="py-4">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h2 mb-0">@(IsNew ? "New Event" : "Edit Event")</h1>
+            <a class="btn btn-outline-secondary" href="/admin/events">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i> Events
+            </a>
+        </div>
+
+        @if (Model is null)
+        {
+            <div class="alert alert-info">Loading event...</div>
+        }
+        else
+        {
+            @if (Errors.Count > 0)
+            {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach (var error in Errors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <EditForm Model="Model" OnValidSubmit="SaveAsync">
+                <DataAnnotationsValidator />
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Model.Title" @onblur="GenerateSlugAsync" id="event-title" class="form-control" placeholder="Title" />
+                    <label for="event-title">Title</label>
+                    <ValidationMessage For="() => Model.Title" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Model.Slug" id="event-slug" class="form-control" placeholder="Slug" />
+                    <label for="event-slug">Slug</label>
+                    <ValidationMessage For="() => Model.Slug" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputTextArea @bind-Value="Model.ShortDescription" id="event-short-description" class="form-control" placeholder="Short description" />
+                    <label for="event-short-description">Short Description</label>
+                    <ValidationMessage For="() => Model.ShortDescription" class="text-danger" />
+                </div>
+
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button type="button" class="nav-link @(ActiveTab == "edit" ? "active" : "")" @onclick='() => SetTab("edit")'>Edit</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button type="button" class="nav-link @(ActiveTab == "preview" ? "active" : "")" @onclick='() => SetTab("preview")'>Preview</button>
+                    </li>
+                </ul>
+
+                @if (ActiveTab == "edit")
+                {
+                    <div class="form-floating mb-3">
+                        <InputTextArea @bind-Value="Model.MarkdownDescription" id="event-description" class="form-control" placeholder="Description" />
+                        <label for="event-description">Markdown Description</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="border rounded p-3 mb-3 bg-body-tertiary event-description">
+                        @PreviewHtml
+                    </div>
+                }
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="StartsAtInput" id="event-starts-at" type="datetime-local" class="form-control" placeholder="Date and time" />
+                    <label for="event-starts-at">Date and Time</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Model.Location" id="event-location" class="form-control" placeholder="Location" />
+                    <label for="event-location">Location</label>
+                    <ValidationMessage For="() => Model.Location" class="text-danger" />
+                </div>
+
+                <fieldset class="mb-3">
+                    <legend class="h6">Speakers</legend>
+                    @if (Speakers.Count == 0)
+                    {
+                        <div class="alert alert-secondary">No users are in the Speaker role.</div>
+                    }
+                    else
+                    {
+                        <div class="list-group">
+                            @foreach (var speaker in Speakers)
+                            {
+                                <label class="list-group-item d-flex gap-2 align-items-center">
+                                    <input type="checkbox" class="form-check-input m-0" checked="@Model.SpeakerIds.Contains(speaker.Id)" @onchange="args => ToggleSpeaker(speaker.Id, args)" />
+                                    <span>@speaker.DisplayName <span class="text-body-secondary">(@speaker.Email)</span></span>
+                                </label>
+                            }
+                        </div>
+                    }
+                </fieldset>
+
+                <div class="form-check form-switch mb-4">
+                    <InputCheckbox @bind-Value="Model.IsPublished" id="event-published" class="form-check-input" />
+                    <label class="form-check-label" for="event-published">Published</label>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" disabled="@IsSaving">
+                        <i class="bi bi-save" aria-hidden="true"></i> Save
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="ValidateAsync" disabled="@IsSaving">
+                        <i class="bi bi-check2-circle" aria-hidden="true"></i> Validate
+                    </button>
+                </div>
+            </EditForm>
+        }
+    </div>
+</section>

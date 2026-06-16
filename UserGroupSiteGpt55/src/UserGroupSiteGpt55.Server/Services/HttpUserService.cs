@@ -15,7 +15,8 @@ public class HttpUserService : IUserService
     {
         get
         {
-            return Convert.ToInt32(HttpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var value = HttpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(value, out var userId) ? userId : default;
         }
     }
 }

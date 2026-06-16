@@ -11,9 +11,18 @@ using UserGroupSiteGpt55.Data.Models;
 using UserGroupSiteGpt55.Server.Components;
 using UserGroupSiteGpt55.Server.Components.Account;
 using UserGroupSiteGpt55.Server.Components.Email;
+using UserGroupSiteGpt55.Server.Endpoints;
+using UserGroupSiteGpt55.Server.Services.Events;
+using UserGroupSiteGpt55.Server.Services.Topics;
+using UserGroupSiteGpt55.Server.Services.Users;
 using UserGroupSiteGpt55.Server.Services;
 using UserGroupSiteGpt55.ServiceDefaults;
+using UserGroupSiteGpt55.Shared.Authorization;
+using UserGroupSiteGpt55.Shared.Events;
+using UserGroupSiteGpt55.Shared.Markdown;
 using UserGroupSiteGpt55.Shared.Services;
+using UserGroupSiteGpt55.Shared.Topics;
+using UserGroupSiteGpt55.Shared.Users;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 
@@ -50,7 +59,13 @@ try
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
         .AddIdentityCookies();
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy(ApplicationPolicies.AdminUsers, policy => policy.RequireRole(ApplicationRoles.Admin));
+        options.AddPolicy(ApplicationPolicies.CreateEvents, policy => policy.RequireRole(ApplicationRoles.Admin));
+        options.AddPolicy(ApplicationPolicies.EditEvents, policy => policy.RequireRole(ApplicationRoles.Admin, ApplicationRoles.Speaker));
+        options.AddPolicy(ApplicationPolicies.ManageTopics, policy => policy.RequireAuthenticatedUser());
+    });
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
@@ -81,6 +96,11 @@ try
     builder.Services.AddSingleton<IEmailSender<User>, IdentityNoOpEmailSender>();
     builder.Services.AddScoped<IUserService, HttpUserService>();
     builder.Services.AddScoped<IToastService, ToastService>();
+    builder.Services.AddScoped<IMarkdownRenderer, MarkdigMarkdownRenderer>();
+    builder.Services.AddScoped<EventAuthorizationService>();
+    builder.Services.AddScoped<IEventService, ServerEventService>();
+    builder.Services.AddScoped<IUserAdminService, ServerUserAdminService>();
+    builder.Services.AddScoped<ITopicSuggestionService, ServerTopicSuggestionService>();
 
     // Add route configuration to enforce lowercase URLs for better SEO
     builder.Services.Configure<RouteOptions>(options =>
@@ -91,6 +111,8 @@ try
     });
 
     var app = builder.Build();
+
+    await RoleSeeder.SeedAsync(app.Services);
 
     app.MapDefaultEndpoints();
 
@@ -121,6 +143,7 @@ try
         .AddAdditionalAssemblies(typeof(UserGroupSiteGpt55.Client._Imports).Assembly);
 
     app.MapAdditionalIdentityEndpoints();
+    app.MapUserGroupEndpoints();
 
     app.Run();
 }

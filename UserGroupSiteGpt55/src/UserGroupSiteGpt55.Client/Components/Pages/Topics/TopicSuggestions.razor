@@ -1,0 +1,99 @@
+@page "/topics"
+@attribute [Authorize(Policy = ApplicationPolicies.ManageTopics)]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Topic Suggestions</PageTitle>
+
+<section class="py-4">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <h1 class="h2 mb-3">Suggest a Topic</h1>
+                @if (Errors.Count > 0)
+                {
+                    <div class="alert alert-danger">@string.Join(" ", Errors)</div>
+                }
+                <EditForm Model="NewTopic" OnValidSubmit="CreateAsync">
+                    <DataAnnotationsValidator />
+                    <div class="form-floating mb-3">
+                        <InputText @bind-Value="NewTopic.Title" id="topic-title" class="form-control" placeholder="Title" />
+                        <label for="topic-title">Title</label>
+                        <ValidationMessage For="() => NewTopic.Title" class="text-danger" />
+                    </div>
+                    <div class="form-floating mb-3">
+                        <InputTextArea @bind-Value="NewTopic.Description" id="topic-description" class="form-control" placeholder="Description" />
+                        <label for="topic-description">Description</label>
+                        <ValidationMessage For="() => NewTopic.Description" class="text-danger" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-lg" aria-hidden="true"></i> Suggest
+                    </button>
+                </EditForm>
+            </div>
+            <div class="col-lg-8">
+                <h2 class="h3 mb-3">Suggestions</h2>
+                @if (Suggestions is null)
+                {
+                    <div class="alert alert-info">Loading suggestions...</div>
+                }
+                else if (Suggestions.Count == 0)
+                {
+                    <div class="alert alert-secondary">No topics have been suggested yet.</div>
+                }
+                else
+                {
+                    <div class="list-group">
+                        @foreach (var topic in Suggestions)
+                        {
+                            <div class="list-group-item py-3">
+                                <div class="d-flex justify-content-between gap-3">
+                                    <div>
+                                        <h3 class="h5 mb-1">@topic.Title</h3>
+                                        <p class="mb-2">@topic.Description</p>
+                                        <div class="small text-body-secondary">
+                                            Suggested by @topic.SuggestedBy
+                                            @if (!string.IsNullOrWhiteSpace(topic.VolunteerSpeaker))
+                                            {
+                                                <span> · Volunteer: @topic.VolunteerSpeaker</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <span class="badge text-bg-primary align-self-start">@topic.VoteCount votes</span>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 mt-3">
+                                    @if (topic.CurrentUserVoted)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="() => RemoveVoteAsync(topic.Id)">
+                                            <i class="bi bi-hand-thumbs-down" aria-hidden="true"></i> Remove Vote
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => VoteAsync(topic.Id)">
+                                            <i class="bi bi-hand-thumbs-up" aria-hidden="true"></i> Vote
+                                        </button>
+                                    }
+
+                                    @if (topic.VolunteerSpeaker is null)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-success" @onclick="() => VolunteerAsync(topic.Id)">
+                                            <i class="bi bi-mic" aria-hidden="true"></i> Volunteer
+                                        </button>
+                                    }
+                                    else if (topic.CurrentUserIsVolunteer)
+                                    {
+                                        <span class="badge text-bg-success align-self-center">You volunteered</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-secondary align-self-center">Volunteer assigned</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

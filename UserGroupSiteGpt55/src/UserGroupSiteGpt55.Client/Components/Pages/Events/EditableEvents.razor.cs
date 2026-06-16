@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Components;
 
 using UserGroupSiteGpt55.Shared.Events;
 
-namespace UserGroupSiteGpt55.Server.Components.Pages;
+namespace UserGroupSiteGpt55.Client.Components.Pages.Events;
 
-public partial class Home : ComponentBase
+public partial class EditableEvents : ComponentBase
 {
     [Inject]
     private IEventService EventService { get; set; } = default!;
@@ -14,6 +14,6 @@ public partial class Home : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        Events ??= await EventService.GetPublishedEventsAsync();
+        Events ??= await EventService.GetEditableEventsAsync();
     }
 }

@@ -1,0 +1,49 @@
+@page "/events/{Slug}"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>@(EventModel?.Title ?? "Event")</PageTitle>
+
+<section class="py-4">
+    <div class="container">
+        @if (EventModel is null)
+        {
+            <div class="alert alert-info">Loading event...</div>
+        }
+        else
+        {
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <h1 class="h2">@EventModel.Title</h1>
+                    @if (!EventModel.IsPublished)
+                    {
+                        <span class="badge text-bg-warning">Draft</span>
+                    }
+                </div>
+                @if (EventModel.CanEdit)
+                {
+                    <a class="btn btn-outline-primary" href="/admin/events/@EventModel.Id/edit">
+                        <i class="bi bi-pencil" aria-hidden="true"></i> Edit
+                    </a>
+                }
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(EventModel.ShortDescription))
+            {
+                <p class="lead">@EventModel.ShortDescription</p>
+            }
+
+            <dl class="row border-top border-bottom py-3 mb-4">
+                <dt class="col-sm-3">When</dt>
+                <dd class="col-sm-9">@(EventModel.StartsAt?.ToLocalTime().ToString("f") ?? "To be announced")</dd>
+                <dt class="col-sm-3">Where</dt>
+                <dd class="col-sm-9">@(!string.IsNullOrWhiteSpace(EventModel.Location) ? EventModel.Location : "To be announced")</dd>
+                <dt class="col-sm-3">Speakers</dt>
+                <dd class="col-sm-9">@string.Join(", ", EventModel.Speakers.Select(s => s.DisplayName))</dd>
+            </dl>
+
+            <article class="event-description">
+                @((MarkupString)EventModel.HtmlDescription)
+            </article>
+        }
+    </div>
+</section>

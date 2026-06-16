@@ -19,4 +19,7 @@
     <Project Path="src/UserGroupSiteGpt55.Server/UserGroupSiteGpt55.Server.csproj" />
     <Project Path="src/UserGroupSiteGpt55.Shared/UserGroupSiteGpt55.Shared.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UserGroupSiteGpt55.Tests/UserGroupSiteGpt55.Tests.csproj" />
+  </Folder>
 </Solution>

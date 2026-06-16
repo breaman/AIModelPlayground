@@ -1,0 +1,57 @@
+@page "/admin/users"
+@attribute [Authorize(Policy = ApplicationPolicies.AdminUsers)]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>User Management</PageTitle>
+
+<section class="py-4">
+    <div class="container">
+        <h1 class="h2 mb-4">User Management</h1>
+
+        @if (!string.IsNullOrWhiteSpace(Message))
+        {
+            <div class="alert @(MessageIsError ? "alert-danger" : "alert-success")">@Message</div>
+        }
+
+        @if (Users is null)
+        {
+            <div class="alert alert-info">Loading users...</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Admin</th>
+                        <th>Speaker</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var user in Users)
+                    {
+                        <tr>
+                            <td>@GetName(user)</td>
+                            <td>@user.Email</td>
+                            <td>
+                                <input class="form-check-input" type="checkbox" checked="@user.IsAdmin" disabled="@user.IsCurrentUser" @onchange="args => SetAdmin(user, args)" />
+                            </td>
+                            <td>
+                                <input class="form-check-input" type="checkbox" checked="@user.IsSpeaker" @onchange="args => SetSpeaker(user, args)" />
+                            </td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-sm btn-primary" @onclick="() => SaveAsync(user)">
+                                    <i class="bi bi-save" aria-hidden="true"></i> Save
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

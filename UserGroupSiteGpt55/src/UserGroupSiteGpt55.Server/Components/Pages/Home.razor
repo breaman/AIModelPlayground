@@ -1,6 +1,55 @@
 @page "/"
-<h3>Home</h3>
+@rendermode InteractiveWebAssembly
 
-<p>Welcome to your homepage</p>
-<p>With hot reload? Why did it think that worked for some reason?</p>
-<p>Now do I have hot reload?</p>
+<PageTitle>Events</PageTitle>
+
+<section class="py-4">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between gap-3 mb-4">
+            <div>
+                <h1 class="h2 mb-1">Upcoming and Recent Events</h1>
+                <p class="text-body-secondary mb-0">Published meetings, talks, and user group sessions.</p>
+            </div>
+        </div>
+
+        @if (Events is null)
+        {
+            <div class="alert alert-info">Loading events...</div>
+        }
+        else if (Events.Count == 0)
+        {
+            <div class="alert alert-secondary">No published events are available yet.</div>
+        }
+        else
+        {
+            <div class="list-group">
+                @foreach (var item in Events)
+                {
+                    <a class="list-group-item list-group-item-action py-3" href="/events/@item.Slug">
+                        <div class="d-flex w-100 justify-content-between gap-3">
+                            <h2 class="h5 mb-1">@item.Title</h2>
+                            @if (item.StartsAt is not null)
+                            {
+                                <time class="text-nowrap text-body-secondary">@item.StartsAt.Value.ToLocalTime().ToString("MMM d, yyyy h:mm tt")</time>
+                            }
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(item.ShortDescription))
+                        {
+                            <p class="mb-2">@item.ShortDescription</p>
+                        }
+                        <div class="d-flex flex-wrap gap-2 text-body-secondary small">
+                            @if (!string.IsNullOrWhiteSpace(item.Location))
+                            {
+                                <span><i class="bi bi-geo-alt" aria-hidden="true"></i> @item.Location</span>
+                            }
+                            @if (item.Speakers.Count > 0)
+                            {
+                                <span><i class="bi bi-mic" aria-hidden="true"></i> @string.Join(", ", item.Speakers)</span>
+                            }
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</section>
