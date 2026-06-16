@@ -1,0 +1,77 @@
+@page "/admin/users"
+@attribute [Authorize(Policy = "Admin")]
+
+<PageTitle>User Management</PageTitle>
+
+<h1>User Management</h1>
+
+@if (_form is null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <StatusMessage Message="@_message" />
+
+    <EditForm Model="_form" OnSubmit="SaveChangesAsync" FormName="user-roles">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Admin</th>
+                        <th>Speaker</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < _form.Users.Count; i++)
+                    {
+                        var user = _form.Users[i];
+                        <tr>
+                            <td>@user.FullName</td>
+                            <td>@user.Email</td>
+                            <td>
+                                @if (user.Id == _currentUserId)
+                                {
+                                    <div class="form-check" data-bs-toggle="tooltip" title="You cannot remove your own Admin role.">
+                                        <InputCheckbox class="form-check-input" @bind-Value="user.IsAdmin" disabled />
+                                        <label class="form-check-label">Admin</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="form-check">
+                                        <InputCheckbox class="form-check-input" @bind-Value="user.IsAdmin" />
+                                        <label class="form-check-label">Admin</label>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <div class="form-check">
+                                    <InputCheckbox class="form-check-input" @bind-Value="user.IsSpeaker" />
+                                    <label class="form-check-label">Speaker</label>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" class="btn btn-primary" disabled="@_isSaving">
+            @if (_isSaving)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Saving...</span>
+            }
+            else
+            {
+                <span>Save Changes</span>
+            }
+        </button>
+    </EditForm>
+}

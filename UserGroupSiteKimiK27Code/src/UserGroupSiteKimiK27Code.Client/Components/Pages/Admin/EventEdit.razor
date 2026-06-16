@@ -1,0 +1,111 @@
+@page "/admin/events/edit"
+@page "/admin/events/edit/{Id:int}"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize(Roles = "Admin,Speaker")]
+
+<PageTitle>@(IsNew ? "New Event" : "Edit Event")</PageTitle>
+
+<h1>@(IsNew ? "New Event" : "Edit Event")</h1>
+
+@if (_isLoading)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (_event is null)
+{
+    <div class="alert alert-danger">Event not found.</div>
+}
+else
+{
+    <EditForm Model="_event" OnValidSubmit="SaveAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" role="alert" />
+
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="_event.Title" @onblur="GenerateSlugAsync" id="event-title" class="form-control" placeholder="Title" />
+            <label for="event-title">Title</label>
+            <ValidationMessage For="() => _event.Title" class="text-danger" />
+        </div>
+
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="_event.Slug" @oninput='() => _slugManuallyEdited = true' id="event-slug" class="form-control" placeholder="Slug" />
+            <label for="event-slug">Slug</label>
+            <ValidationMessage For="() => _event.Slug" class="text-danger" />
+        </div>
+
+        <div class="form-floating mb-3">
+            <InputTextArea @bind-Value="_event.ShortDescription" id="event-short" class="form-control" style="height: 100px;" placeholder="Short description" />
+            <label for="event-short">Short Description</label>
+            <ValidationMessage For="() => _event.ShortDescription" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <MarkdownEditor @bind-Markdown="_event.Description" />
+            <ValidationMessage For="() => _event.Description" class="text-danger" />
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <div class="form-floating">
+                    <InputDate Type="InputDateType.DateTimeLocal" @bind-Value="_event.EventDate" id="event-date" class="form-control" />
+                    <label for="event-date">Date & Time</label>
+                    <ValidationMessage For="() => _event.EventDate" class="text-danger" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-floating">
+                    <InputText @bind-Value="_event.Location" id="event-location" class="form-control" placeholder="Location" />
+                    <label for="event-location">Location</label>
+                    <ValidationMessage For="() => _event.Location" class="text-danger" />
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Speakers</label>
+            @if (_speakers is null)
+            {
+                <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-1 row-cols-md-3 g-2">
+                    @foreach (var speaker in _speakers)
+                    {
+                        <div class="col">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked="@_event.SpeakerIds.Contains(speaker.Id)" @onchange="e => ToggleSpeaker(speaker.Id, e.Value)" id="speaker-@speaker.Id" />
+                                <label class="form-check-label" for="speaker-@speaker.Id">@speaker.FullName</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <ValidationMessage For="() => _event.SpeakerIds" class="text-danger" />
+            }
+        </div>
+
+        <div class="form-check mb-3">
+            <InputCheckbox @bind-Value="_event.IsPublished" id="event-published" class="form-check-input" />
+            <label class="form-check-label" for="event-published">Published</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" disabled="@_isSaving">
+            @if (_isSaving)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Saving...</span>
+            }
+            else
+            {
+                <span>Save</span>
+            }
+        </button>
+        <a href="/admin/events" class="btn btn-link">Cancel</a>
+    </EditForm>
+}

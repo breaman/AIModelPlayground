@@ -5,12 +5,50 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
                         <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
                     </NavLink>
                 </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/topics">
+                        <span class="bi bi-lightbulb" aria-hidden="true"></span> Topic Suggestions
+                    </NavLink>
+                </li>
+                <AuthorizeView Policy="AdminOrSpeaker">
+                    <Authorized>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="eventsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="bi bi-calendar-event" aria-hidden="true"></span> Events
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
+                                <AuthorizeView Policy="Admin" Context="adminContext">
+                                    <Authorized>
+                                        <li>
+                                            <NavLink class="dropdown-item" href="/admin/events">All Events</NavLink>
+                                        </li>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <li>
+                                    <NavLink class="dropdown-item" href="/admin/events/edit">New Event</NavLink>
+                                </li>
+                                <li>
+                                    <NavLink class="dropdown-item" href="/admin/my-events">My Events</NavLink>
+                                </li>
+                            </ul>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
+                <AuthorizeView Policy="Admin">
+                    <Authorized>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/admin/users">
+                                <span class="bi bi-people" aria-hidden="true"></span> Users
+                            </NavLink>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
             </ul>
             <ul class="navbar-nav ms-auto">
                 <AuthorizeView>

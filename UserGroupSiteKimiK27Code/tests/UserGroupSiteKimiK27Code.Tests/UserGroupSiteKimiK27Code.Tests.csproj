@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\UserGroupSiteKimiK27Code.Data\UserGroupSiteKimiK27Code.Data.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteKimiK27Code.Server\UserGroupSiteKimiK27Code.Server.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteKimiK27Code.Shared\UserGroupSiteKimiK27Code.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

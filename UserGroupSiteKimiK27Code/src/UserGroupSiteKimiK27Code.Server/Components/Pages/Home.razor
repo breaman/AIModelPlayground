@@ -1,6 +1,54 @@
 @page "/"
-<h3>Home</h3>
 
-<p>Welcome to your homepage</p>
-<p>With hot reload? Why did it think that worked for some reason?</p>
-<p>Now do I have hot reload?</p>
+<PageTitle>Home</PageTitle>
+
+<h1>Upcoming Events</h1>
+
+@if (_events is null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (_events.Count == 0)
+{
+    <div class="alert alert-info">No events have been published yet. Check back soon!</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @foreach (var evt in _events)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="@($"/events/{evt.Slug}")" class="text-decoration-none">@evt.Title</a>
+                        </h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <span class="bi bi-calendar"></span> @evt.EventDate.ToLocalTime().ToString("f")
+                            @if (!string.IsNullOrWhiteSpace(evt.Location))
+                            {
+                                <span class="ms-2">
+                                    <span class="bi bi-geo-alt"></span> @evt.Location
+                                </span>
+                            }
+                        </h6>
+                        @if (!string.IsNullOrWhiteSpace(evt.ShortDescription))
+                        {
+                            <p class="card-text">@evt.ShortDescription</p>
+                        }
+                        @if (evt.Speakers.Count > 0)
+                        {
+                            <p class="card-text">
+                                <small class="text-muted">Speakers: @string.Join(", ", evt.Speakers.Select(s => s.FullName))</small>
+                            </p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

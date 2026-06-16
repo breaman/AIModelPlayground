@@ -1,0 +1,111 @@
+@page "/topics"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize]
+
+<PageTitle>Topic Suggestions</PageTitle>
+
+<h1>Topic Suggestions</h1>
+
+<p class="lead">Suggest topics for future meetings, vote on ideas you like, or volunteer to speak.</p>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Suggest a Topic</h5>
+        <EditForm Model="_newSuggestion" OnValidSubmit="CreateSuggestionAsync">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="_newSuggestion.Title" id="new-title" class="form-control" placeholder="Title" />
+                <label for="new-title">Title</label>
+                <ValidationMessage For="() => _newSuggestion.Title" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputTextArea @bind-Value="_newSuggestion.Description" id="new-description" class="form-control" style="height: 100px;" placeholder="Description" />
+                <label for="new-description">Description</label>
+                <ValidationMessage For="() => _newSuggestion.Description" class="text-danger" />
+            </div>
+            <button type="submit" class="btn btn-primary" disabled="@_isSubmitting">
+                @if (_isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span>Submitting...</span>
+                }
+                else
+                {
+                    <span>Submit Suggestion</span>
+                }
+            </button>
+        </EditForm>
+    </div>
+</div>
+
+@if (_suggestions is null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (_suggestions.Count == 0)
+{
+    <div class="alert alert-info">No topic suggestions yet. Be the first to suggest one!</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @foreach (var suggestion in _suggestions)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@suggestion.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Suggested by @suggestion.SuggestedByName</h6>
+                        @if (!string.IsNullOrWhiteSpace(suggestion.Description))
+                        {
+                            <p class="card-text">@suggestion.Description</p>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(suggestion.VolunteerSpeakerName))
+                        {
+                            <p class="card-text">
+                                <span class="badge bg-info text-dark">Volunteer: @suggestion.VolunteerSpeakerName</span>
+                            </p>
+                        }
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <div>
+                            <button type="button" class="btn btn-sm @(suggestion.HasVoted ? "btn-success" : "btn-outline-primary")" @onclick="() => VoteAsync(suggestion)" disabled="@_votingIds.Contains(suggestion.Id)">
+                                @if (_votingIds.Contains(suggestion.Id))
+                                {
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                }
+                                else
+                                {
+                                    <span class="bi @(suggestion.HasVoted ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up")"></span>
+                                }
+                                <span class="ms-1">@suggestion.VoteCount</span>
+                            </button>
+                        </div>
+                        <div>
+                            @if (!suggestion.VolunteerSpeakerId.HasValue && _isSpeaker)
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-info" @onclick="() => VolunteerAsync(suggestion)" disabled="@_volunteeringIds.Contains(suggestion.Id)">
+                                    @if (_volunteeringIds.Contains(suggestion.Id))
+                                    {
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        <span>Volunteering...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Volunteer</span>
+                                    }
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

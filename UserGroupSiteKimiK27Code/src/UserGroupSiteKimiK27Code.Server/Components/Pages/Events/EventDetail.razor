@@ -1,0 +1,41 @@
+@page "/events/{slug}"
+
+<PageTitle>@(_event?.Title ?? "Event Details")</PageTitle>
+
+@if (_event is null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <h1>@_event.Title</h1>
+    <p class="text-muted">
+        <span class="bi bi-calendar"></span> @_event.EventDate.ToLocalTime().ToString("f")
+        @if (!string.IsNullOrWhiteSpace(_event.Location))
+        {
+            <span class="ms-2">
+                <span class="bi bi-geo-alt"></span> @_event.Location
+            </span>
+        }
+    </p>
+
+    @if (_event.Speakers.Count > 0)
+    {
+        <p>
+            <strong>Speakers:</strong> @string.Join(", ", _event.Speakers.Select(s => s.FullName))
+        </p>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(_event.ShortDescription))
+    {
+        <p class="lead">@_event.ShortDescription</p>
+    }
+
+    <div class="mt-4">
+        @((MarkupString)_event.DescriptionHtml)
+    </div>
+}

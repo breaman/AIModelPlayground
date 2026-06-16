@@ -8,11 +8,13 @@ using Serilog;
 using UserGroupSiteKimiK27Code.Client.Services;
 using UserGroupSiteKimiK27Code.Data.Interfaces;
 using UserGroupSiteKimiK27Code.Data.Models;
+using UserGroupSiteKimiK27Code.Server.Api;
 using UserGroupSiteKimiK27Code.Server.Components;
 using UserGroupSiteKimiK27Code.Server.Components.Account;
 using UserGroupSiteKimiK27Code.Server.Components.Email;
 using UserGroupSiteKimiK27Code.Server.Services;
 using UserGroupSiteKimiK27Code.ServiceDefaults;
+using UserGroupSiteKimiK27Code.Shared;
 using UserGroupSiteKimiK27Code.Shared.Services;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
@@ -50,12 +52,26 @@ try
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
         .AddIdentityCookies();
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("Admin", policy => policy.RequireRole(Roles.Admin));
+        options.AddPolicy("AdminOrSpeaker", policy => policy.RequireRole(Roles.Admin, Roles.Speaker));
+    });
 
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
-            .EnableSensitiveDataLogging());
-    builder.EnrichSqlServerDbContext<ApplicationDbContext>();
+    var useInMemoryDatabase = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
+    if (useInMemoryDatabase)
+    {
+        var inMemoryName = builder.Configuration["InMemoryDatabaseName"] ?? $"UserGroup-{Guid.NewGuid()}";
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseInMemoryDatabase(inMemoryName));
+    }
+    else
+    {
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
+                .EnableSensitiveDataLogging());
+        builder.EnrichSqlServerDbContext<ApplicationDbContext>();
+    }
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
     builder.Services.AddIdentityCore<User>(options =>
@@ -81,6 +97,9 @@ try
     builder.Services.AddSingleton<IEmailSender<User>, IdentityNoOpEmailSender>();
     builder.Services.AddScoped<IUserService, HttpUserService>();
     builder.Services.AddScoped<IToastService, ToastService>();
+    builder.Services.AddScoped<IEventAuthorizationService, EventAuthorizationService>();
+    builder.Services.AddScoped<IEventService, ServerEventService>();
+    builder.Services.AddScoped<ITopicSuggestionService, ServerTopicSuggestionService>();
 
     // Add route configuration to enforce lowercase URLs for better SEO
     builder.Services.Configure<RouteOptions>(options =>
@@ -93,6 +112,8 @@ try
     var app = builder.Build();
 
     app.MapDefaultEndpoints();
+
+    await DataSeeder.SeedAsync(app.Services, app.Configuration);
 
     app.UseSerilogRequestLogging();
 
@@ -121,6 +142,9 @@ try
         .AddAdditionalAssemblies(typeof(UserGroupSiteKimiK27Code.Client._Imports).Assembly);
 
     app.MapAdditionalIdentityEndpoints();
+    app.MapEventApiEndpoints();
+    app.MapMarkdownApiEndpoints();
+    app.MapTopicSuggestionApiEndpoints();
 
     app.Run();
 }

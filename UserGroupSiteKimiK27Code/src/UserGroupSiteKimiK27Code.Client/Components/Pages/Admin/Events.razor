@@ -1,0 +1,67 @@
+@page "/admin/events"
+@page "/admin/my-events"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize(Roles = "Admin,Speaker")]
+
+<PageTitle>@(IsMyEvents ? "My Events" : "All Events")</PageTitle>
+
+<h1>@(IsMyEvents ? "My Events" : "All Events")</h1>
+
+<p>
+    <a href="/admin/events/edit" class="btn btn-primary">
+        <span class="bi bi-plus-lg"></span> New Event
+    </a>
+</p>
+
+@if (_events is null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+else if (_events.Count == 0)
+{
+    <div class="alert alert-info">No events found.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Location</th>
+                    <th>Published</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var evt in _events)
+                {
+                    <tr class="@(!evt.IsPublished ? "table-secondary" : "")">
+                        <td>@evt.Title</td>
+                        <td>@evt.EventDate.ToLocalTime().ToString("g")</td>
+                        <td>@(evt.Location ?? "-")</td>
+                        <td>
+                            @if (evt.IsPublished)
+                            {
+                                <span class="badge bg-success">Published</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Draft</span>
+                            }
+                        </td>
+                        <td>
+                            <a href="@($"/admin/events/edit/{evt.Id}")" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a href="@($"/events/{evt.Slug}")" class="btn btn-sm btn-outline-secondary ms-1">View</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

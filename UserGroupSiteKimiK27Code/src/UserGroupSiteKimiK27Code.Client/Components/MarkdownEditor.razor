@@ -1,0 +1,42 @@
+<div class="markdown-editor">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button type="button" class="nav-link @(_activeTab == "edit" ? "active" : "")" @onclick='() => SetTabAsync("edit")' role="tab" aria-selected="@(_activeTab == "edit")">
+                Edit
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button type="button" class="nav-link @(_activeTab == "preview" ? "active" : "")" @onclick='() => SetTabAsync("preview")' role="tab" aria-selected="@(_activeTab == "preview")">
+                Preview
+            </button>
+        </li>
+    </ul>
+    <div class="tab-content border border-top-0 rounded-bottom p-3">
+        <div class="tab-pane @(_activeTab == "edit" ? "show active" : "")" role="tabpanel">
+            <div class="form-floating">
+                <textarea class="form-control" style="height: 300px;" value="@Markdown" @oninput="OnMarkdownInput" id="@_textareaId" placeholder="Enter markdown content"></textarea>
+                <label for="@_textareaId">Markdown</label>
+            </div>
+        </div>
+        <div class="tab-pane @(_activeTab == "preview" ? "show active" : "")" role="tabpanel">
+            @if (_isPreviewLoading)
+            {
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            }
+            else if (!string.IsNullOrEmpty(_previewHtml))
+            {
+                <div class="markdown-preview">
+                    @((MarkupString)_previewHtml)
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">Nothing to preview.</p>
+            }
+        </div>
+    </div>
+</div>
