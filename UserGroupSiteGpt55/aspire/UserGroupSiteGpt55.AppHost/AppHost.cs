@@ -10,7 +10,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 var dbPassword = builder.AddParameter("sql-password", "P@ssw0rd!")
     .InitiallyHidden();
 
-var sqlServer = builder.AddSqlServer("sqlserver", dbPassword)
+var sqlServer = builder.AddSqlServer("sqlserver", dbPassword, 56703)
     .WithContainerName("usergroupsitegpt55-sqlserver");
 
 if (osArch == System.Runtime.InteropServices.Architecture.Arm64
