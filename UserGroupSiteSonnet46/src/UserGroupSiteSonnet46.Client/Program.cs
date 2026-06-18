@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+
 using UserGroupSiteSonnet46.Client.Services;
 using UserGroupSiteSonnet46.Shared.Services;
-
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 

@@ -1,7 +1,7 @@
-using UserGroupSiteSonnet46.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+
+using UserGroupSiteSonnet46.Data.Models;
 
 namespace UserGroupSiteSonnet46.Server.Components.Email;
 

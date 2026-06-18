@@ -1,7 +1,7 @@
-using UserGroupSiteSonnet46.Shared.Services;
-
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+
+using UserGroupSiteSonnet46.Shared.Services;
 
 namespace UserGroupSiteSonnet46.Client.Components.Pages.Admin;
 

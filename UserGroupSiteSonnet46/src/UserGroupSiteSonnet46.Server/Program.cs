@@ -1,6 +1,11 @@
 using System.Diagnostics;
 using System.Security.Claims;
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+using Serilog;
+
 using UserGroupSiteSonnet46.Client.Services;
 using UserGroupSiteSonnet46.Data.Interfaces;
 using UserGroupSiteSonnet46.Data.Models;
@@ -10,11 +15,6 @@ using UserGroupSiteSonnet46.Server.Components.Email;
 using UserGroupSiteSonnet46.Server.Services;
 using UserGroupSiteSonnet46.ServiceDefaults;
 using UserGroupSiteSonnet46.Shared.Services;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Serilog;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 

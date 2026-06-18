@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using UserGroupSiteSonnet46.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteSonnet46.Data.Models;
 
 namespace UserGroupSiteSonnet46.Server.Services;
 

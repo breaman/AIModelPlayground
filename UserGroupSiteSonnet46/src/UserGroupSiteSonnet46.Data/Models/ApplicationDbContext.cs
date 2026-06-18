@@ -1,6 +1,6 @@
-using UserGroupSiteSonnet46.Data.Interfaces;
-
 using Microsoft.EntityFrameworkCore;
+
+using UserGroupSiteSonnet46.Data.Interfaces;
 
 namespace UserGroupSiteSonnet46.Data.Models;
 

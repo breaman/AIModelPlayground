@@ -1,8 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+
 using UserGroupSiteSonnet46.Data.Interfaces;
 using UserGroupSiteSonnet46.Data.Models;
 using UserGroupSiteSonnet46.Shared.Services;
-
-using Microsoft.EntityFrameworkCore;
 
 namespace UserGroupSiteSonnet46.Server.Services;
 

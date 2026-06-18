@@ -1,8 +1,7 @@
+using Microsoft.AspNetCore.Components;
+
 using UserGroupSiteSonnet46.Client.Helpers;
 using UserGroupSiteSonnet46.Shared.Services;
-
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace UserGroupSiteSonnet46.Client.Components.Pages.Events;
 
