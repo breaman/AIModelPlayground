@@ -1,5 +1,10 @@
 using System.Diagnostics;
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+using Serilog;
+
 using UserGroupSiteGlm51.Client.Services;
 using UserGroupSiteGlm51.Data.Interfaces;
 using UserGroupSiteGlm51.Data.Models;
@@ -11,11 +16,6 @@ using UserGroupSiteGlm51.Server.Endpoints;
 using UserGroupSiteGlm51.Server.Services;
 using UserGroupSiteGlm51.ServiceDefaults;
 using UserGroupSiteGlm51.Shared.Services;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Serilog;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 

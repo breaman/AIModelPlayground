@@ -1,8 +1,6 @@
 using UserGroupSiteGlm51.Data.Interfaces;
 using UserGroupSiteGlm51.Shared.Models;
 
-using Microsoft.AspNetCore.Identity;
-
 namespace UserGroupSiteGlm51.Server.Endpoints;
 
 /// <summary>

@@ -1,6 +1,6 @@
-using UserGroupSiteGlm51.Data.Interfaces;
-
 using Microsoft.EntityFrameworkCore;
+
+using UserGroupSiteGlm51.Data.Interfaces;
 
 namespace UserGroupSiteGlm51.Data.Models;
 

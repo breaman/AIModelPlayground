@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using UserGroupSiteGlm51.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteGlm51.Data.Models;
 
 namespace UserGroupSiteGlm51.Server.Services;
 

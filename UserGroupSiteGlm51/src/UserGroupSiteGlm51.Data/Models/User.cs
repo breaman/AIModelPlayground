@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-using UserGroupSiteGlm51.Data.Interfaces;
-
 using Microsoft.AspNetCore.Identity;
+
+using UserGroupSiteGlm51.Data.Interfaces;
 
 namespace UserGroupSiteGlm51.Data.Models;
 
