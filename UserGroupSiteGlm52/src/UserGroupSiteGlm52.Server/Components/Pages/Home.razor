@@ -1,6 +1,58 @@
 @page "/"
-<h3>Home</h3>
 
-<p>Welcome to your homepage</p>
-<p>With hot reload? Why did it think that worked for some reason?</p>
-<p>Now do I have hot reload?</p>
+<section class="pb-4">
+    <div class="d-flex align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">Technical User Group</h1>
+            <p class="text-muted mb-0">Community events, talks, and topics — suggested by members, run by volunteers.</p>
+        </div>
+    </div>
+
+    @if (Events is null)
+    {
+        <p class="text-muted">Loading events…</p>
+    }
+    else if (Events.Count == 0)
+    {
+        <div class="alert alert-info">
+            <span class="bi bi-info-circle-fill me-2" aria-hidden="true"></span>
+            There are no published events yet. Check back soon.
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var evt in Events)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h2 class="card-title h5">
+                                <a href="/events/@evt.Slug" class="text-decoration-none stretched-link">@evt.Title</a>
+                            </h2>
+                            @if (!string.IsNullOrWhiteSpace(evt.ShortDescription))
+                            {
+                                <p class="card-text text-muted small">@evt.ShortDescription</p>
+                            }
+                            <p class="card-text small mb-1">
+                                <span class="bi bi-calendar-event me-1" aria-hidden="true"></span>
+                                @(evt.EventDate.HasValue ? evt.EventDate.Value.ToString("f") : "Date to be announced")
+                            </p>
+                            <p class="card-text small mb-1">
+                                <span class="bi bi-geo-alt me-1" aria-hidden="true"></span>
+                                @(string.IsNullOrWhiteSpace(evt.Location) ? "Location to be announced" : evt.Location)
+                            </p>
+                            @if (evt.SpeakerNames.Count > 0)
+                            {
+                                <p class="card-text small text-muted mb-0">
+                                    <span class="bi bi-person-fill me-1" aria-hidden="true"></span>
+                                    @string.Join(", ", evt.SpeakerNames)
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>

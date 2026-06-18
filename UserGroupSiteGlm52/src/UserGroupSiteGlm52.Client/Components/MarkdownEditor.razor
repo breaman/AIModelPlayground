@@ -1,0 +1,36 @@
+<div class="markdown-editor">
+    <ul class="nav nav-tabs mb-2" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button type="button" class="nav-link @(showPreview ? "" : "active")" @onclick="ShowEdit" role="tab">
+                <span class="bi bi-pencil me-1" aria-hidden="true"></span>Edit
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button type="button" class="nav-link @(showPreview ? "active" : "")" @onclick="ShowPreview" role="tab">
+                <span class="bi bi-eye me-1" aria-hidden="true"></span>Preview
+            </button>
+        </li>
+    </ul>
+
+    @if (showPreview)
+    {
+        <div class="border rounded bg-light p-3 markdown-preview" style="min-height: 200px;">
+            @if (string.IsNullOrWhiteSpace(Value))
+            {
+                <span class="text-muted">Nothing to preview yet.</span>
+            }
+            else
+            {
+                @previewHtml
+            }
+        </div>
+    }
+    else
+    {
+        <div class="form-floating">
+            <textarea class="form-control" id="@Id" placeholder="@Placeholder"
+                      style="min-height: 240px;" @bind="CurrentValue" @bind:event="oninput"></textarea>
+            <label for="@Id">@(Label ?? "Markdown")</label>
+        </div>
+    }
+</div>

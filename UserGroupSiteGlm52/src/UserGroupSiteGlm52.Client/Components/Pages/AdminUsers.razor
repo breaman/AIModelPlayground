@@ -1,0 +1,61 @@
+@page "/admin/users"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize(Roles = "Admin")]
+
+<h1 class="mb-3">Users</h1>
+<p class="text-muted">Manage Admin and Speaker roles. You cannot remove your own Admin role.</p>
+
+@if (Users is null)
+{
+    <p class="text-muted">Loading…</p>
+}
+else if (Users.Count == 0)
+{
+    <p class="text-muted">No users found.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">User</th>
+                    <th scope="col">Email</th>
+                    <th scope="col" class="text-center">Admin</th>
+                    <th scope="col" class="text-center">Speaker</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Users)
+                {
+                    <tr>
+                        <td>
+                            <span class="fw-semibold">@user.DisplayName</span>
+                            @if (user.IsCurrentUser)
+                            {
+                                <span class="badge bg-info text-dark ms-1">You</span>
+                            }
+                        </td>
+                        <td class="text-muted small">@user.Email</td>
+                        <td class="text-center">
+                            <div class="form-check form-switch d-inline-block">
+                                <input type="checkbox" class="form-check-input" role="switch"
+                                       checked="@user.IsAdmin" disabled="@user.IsCurrentUser"
+                                       @onchange="@(e => SetRolesAsync(user, e.Value is true, user.IsSpeaker))"
+                                       aria-label="Admin role" />
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="form-check form-switch d-inline-block">
+                                <input type="checkbox" class="form-check-input" role="switch"
+                                       checked="@user.IsSpeaker"
+                                       @onchange="@(e => SetRolesAsync(user, user.IsAdmin, e.Value is true))"
+                                       aria-label="Speaker role" />
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

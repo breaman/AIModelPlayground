@@ -10,6 +10,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <!-- HtmlSanitizer sanitizes rendered Markdown on the public, server-rendered detail page before emitting MarkupString. -->
+    <PackageReference Include="HtmlSanitizer" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" />
     <PackageReference Include="Serilog.Sinks.OpenTelemetry" />

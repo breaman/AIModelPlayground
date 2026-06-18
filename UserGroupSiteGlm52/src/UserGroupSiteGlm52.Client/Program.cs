@@ -17,4 +17,13 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<IToastService, ToastService>();
 
+// Dual-mode services: WebAssembly uses the HTTP-backed client implementations.
+// (The Server project registers the DB-backed implementations used during pre-render.)
+builder.Services.AddScoped<IEventService, ClientEventService>();
+builder.Services.AddScoped<ITopicService, ClientTopicService>();
+builder.Services.AddScoped<IUserAdminService, ClientUserAdminService>();
+
+// Markdown rendering for the live preview; the same impl is used server-side for the public detail page.
+builder.Services.AddSingleton<IMarkdownService, MarkdownService>();
+
 await builder.Build().RunAsync();

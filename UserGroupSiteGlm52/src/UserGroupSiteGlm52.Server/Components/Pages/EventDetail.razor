@@ -1,0 +1,54 @@
+@page "/events/{Slug}"
+
+@if (NotFound)
+{
+    <h3>Not Found</h3>
+    <p>Sorry, that event does not exist or is not available.</p>
+}
+else if (Event is not null)
+{
+    <article class="pb-4">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+            @if (!Event.IsPublished)
+            {
+                <span class="badge bg-warning text-dark">
+                    <span class="bi bi-eye-slash me-1" aria-hidden="true"></span>Draft preview
+                </span>
+            }
+            @if (Event.EventDate.HasValue)
+            {
+                <span class="text-muted small">
+                    <span class="bi bi-calendar-event me-1" aria-hidden="true"></span>@Event.EventDate.Value.ToString("f")
+                </span>
+            }
+            @if (!string.IsNullOrWhiteSpace(Event.Location))
+            {
+                <span class="text-muted small">
+                    <span class="bi bi-geo-alt me-1" aria-hidden="true"></span>@Event.Location
+                </span>
+            }
+        </div>
+
+        <h1 class="mb-2">@Event.Title</h1>
+
+        @if (!string.IsNullOrWhiteSpace(Event.ShortDescription))
+        {
+            <p class="lead text-muted">@Event.ShortDescription</p>
+        }
+
+        @if (Event.Speakers.Count > 0)
+        {
+            <div class="mb-3">
+                <span class="bi bi-person-fill me-1 text-muted" aria-hidden="true"></span>
+                <strong>Speakers:</strong>
+                @string.Join(", ", Event.Speakers.Select(s => s.DisplayName))
+            </div>
+        }
+
+        <hr />
+
+        <div class="event-description">
+            @DescriptionHtml
+        </div>
+    </article>
+}

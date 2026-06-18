@@ -3,4 +3,9 @@
   <PropertyGroup>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Markdig renders Markdown to HTML; used by MarkdownService shared by Server (public detail) and Client (live preview). -->
+    <PackageReference Include="Markdig" />
+  </ItemGroup>
+
 </Project>

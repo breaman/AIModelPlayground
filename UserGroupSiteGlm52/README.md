@@ -29,3 +29,30 @@ This project is configured with aspire, so the recommended way to kick off proje
 cd aspire/UserGroupSiteGlm52.AppHost
 dotnet watch
 ```
+
+## Seeded admin
+On first startup (after Aspire applies the `InitialDatabase` migration), a seeder
+creates the `Admin` and `Speaker` roles and a default administrator so someone can
+manage roles immediately. The credentials come from configuration
+(`AdminUser:Email` / `AdminUser:Password`, plus optional `AdminUser:FirstName` /
+`AdminUser:LastName`); if none are configured, a dev fallback is used:
+
+- Email: `admin@usergroup.local`
+- Password: `Admin123!`
+
+The seeded admin's email is pre-confirmed, so it can log in without the dev
+confirm link. Configure a real admin via user secrets/appsettings for any
+non-dev environment.
+
+## Features
+- **Self-registration** via the existing Identity UI (admins manage roles).
+- **Events** — admins create events with a Markdown editor (Edit/Preview tabs),
+  auto-filled kebab-case slug, and a speaker picker (users in the `Speaker` role).
+  Publishing requires a description, date, location, and at least one speaker.
+  An assigned speaker may edit their event.
+- **Public home** lists published events (newest first); `/events/{slug}` renders
+  the Markdown description server-side and sanitizes it before emitting HTML.
+- **Topics** — logged-in users suggest topics, vote once per topic, and volunteer
+  to present (one volunteer per topic).
+- **Admin user management** — set Admin/Speaker roles per user; you cannot remove
+  your own Admin role (disabled in the UI and rejected by the server).
