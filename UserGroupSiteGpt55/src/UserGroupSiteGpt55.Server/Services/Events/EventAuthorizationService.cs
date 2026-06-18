@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using UserGroupSiteGpt55.Data.Models;
-using UserGroupSiteGpt55.Data.Models.Events;
 using UserGroupSiteGpt55.Shared.Authorization;
 
 namespace UserGroupSiteGpt55.Server.Services.Events;

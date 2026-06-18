@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
+using UserGroupSiteGpt55.Client.Services;
 using UserGroupSiteGpt55.Client.Services.Events;
 using UserGroupSiteGpt55.Client.Services.Markdown;
 using UserGroupSiteGpt55.Client.Services.Topics;
 using UserGroupSiteGpt55.Client.Services.Users;
-using UserGroupSiteGpt55.Client.Services;
 using UserGroupSiteGpt55.Shared.Events;
 using UserGroupSiteGpt55.Shared.Markdown;
 using UserGroupSiteGpt55.Shared.Services;
