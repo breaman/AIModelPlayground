@@ -1,5 +1,10 @@
 using System.Diagnostics;
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+using Serilog;
+
 using UserGroupSiteDeepSeekV4Pro.Client.Services;
 using UserGroupSiteDeepSeekV4Pro.Data.Interfaces;
 using UserGroupSiteDeepSeekV4Pro.Data.Models;
@@ -11,11 +16,6 @@ using UserGroupSiteDeepSeekV4Pro.Server.Services;
 using UserGroupSiteDeepSeekV4Pro.ServiceDefaults;
 using UserGroupSiteDeepSeekV4Pro.Shared.Constants;
 using UserGroupSiteDeepSeekV4Pro.Shared.Services;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Serilog;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 

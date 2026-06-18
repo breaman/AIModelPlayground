@@ -1,6 +1,6 @@
-using UserGroupSiteDeepSeekV4Pro.Data.Interfaces;
-
 using Microsoft.EntityFrameworkCore;
+
+using UserGroupSiteDeepSeekV4Pro.Data.Interfaces;
 
 namespace UserGroupSiteDeepSeekV4Pro.Data.Models;
 

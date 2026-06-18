@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-using UserGroupSiteDeepSeekV4Pro.Data.Interfaces;
-
 using Microsoft.AspNetCore.Identity;
+
+using UserGroupSiteDeepSeekV4Pro.Data.Interfaces;
 
 namespace UserGroupSiteDeepSeekV4Pro.Data.Models;
 

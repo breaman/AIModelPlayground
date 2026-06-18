@@ -4,8 +4,6 @@ using UserGroupSiteDeepSeekV4Pro.Shared.Constants;
 using UserGroupSiteDeepSeekV4Pro.Shared.Models;
 using UserGroupSiteDeepSeekV4Pro.Shared.Services;
 
-using Microsoft.AspNetCore.Http.HttpResults;
-
 namespace UserGroupSiteDeepSeekV4Pro.Server.Endpoints;
 
 public static class EventEndpoints

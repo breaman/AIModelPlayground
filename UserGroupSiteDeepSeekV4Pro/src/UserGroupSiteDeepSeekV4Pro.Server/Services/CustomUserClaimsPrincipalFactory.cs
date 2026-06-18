@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using UserGroupSiteDeepSeekV4Pro.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteDeepSeekV4Pro.Data.Models;
 
 namespace UserGroupSiteDeepSeekV4Pro.Server.Services;
 

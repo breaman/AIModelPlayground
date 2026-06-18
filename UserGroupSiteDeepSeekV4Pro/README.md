@@ -29,3 +29,27 @@ This project is configured with aspire, so the recommended way to kick off proje
 cd aspire/UserGroupSiteDeepSeekV4Pro.AppHost
 dotnet watch
 ```
+
+Deepseek decided to create a site.js file and place it directly in the wwwroot/js directory. Since the wwwroot directory is ignored by the .gitignore file, here is the copy of the file contents and will need to be manually added so the project will work
+
+```
+// Markdown rendering via marked.js
+window.renderMarkdown = function (markdown) {
+    if (typeof marked !== 'undefined') {
+        return marked.parse(markdown);
+    }
+    return markdown;
+};
+
+// Generate kebab-case slug from a title string
+window.generateSlug = function (title) {
+    if (!title) return '';
+    return title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+};
+```
