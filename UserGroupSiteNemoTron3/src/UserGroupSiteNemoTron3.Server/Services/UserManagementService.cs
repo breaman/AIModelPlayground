@@ -1,9 +1,9 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 using UserGroupSiteNemoTron3.Data.Models;
 using UserGroupSiteNemoTron3.Shared.DTOs;
 using UserGroupSiteNemoTron3.Shared.Services;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace UserGroupSiteNemoTron3.Server.Services;
 

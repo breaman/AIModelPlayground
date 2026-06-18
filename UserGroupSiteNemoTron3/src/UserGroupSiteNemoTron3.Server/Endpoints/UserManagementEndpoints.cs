@@ -2,8 +2,6 @@ using UserGroupSiteNemoTron3.Data.Interfaces;
 using UserGroupSiteNemoTron3.Shared.DTOs;
 using UserGroupSiteNemoTron3.Shared.Services;
 
-using Microsoft.AspNetCore.Authorization;
-
 namespace UserGroupSiteNemoTron3.Server.Endpoints;
 
 public static class UserManagementEndpoints

@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-using UserGroupSiteNemoTron3.Data.Interfaces;
-
 using Microsoft.AspNetCore.Identity;
+
+using UserGroupSiteNemoTron3.Data.Interfaces;
 
 namespace UserGroupSiteNemoTron3.Data.Models;
 

@@ -1,5 +1,10 @@
 using System.Diagnostics;
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+using Serilog;
+
 using UserGroupSiteNemoTron3.Client.Services;
 using UserGroupSiteNemoTron3.Data.Interfaces;
 using UserGroupSiteNemoTron3.Data.Models;
@@ -10,13 +15,6 @@ using UserGroupSiteNemoTron3.Server.Endpoints;
 using UserGroupSiteNemoTron3.Server.Services;
 using UserGroupSiteNemoTron3.ServiceDefaults;
 using UserGroupSiteNemoTron3.Shared.Services;
-
-using Markdig;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Serilog;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 

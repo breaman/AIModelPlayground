@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using UserGroupSiteNemoTron3.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteNemoTron3.Data.Models;
 
 namespace UserGroupSiteNemoTron3.Server.Services;
 

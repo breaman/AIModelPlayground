@@ -1,9 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+
 using UserGroupSiteNemoTron3.Data.Interfaces;
 using UserGroupSiteNemoTron3.Data.Models;
 using UserGroupSiteNemoTron3.Shared.DTOs;
 using UserGroupSiteNemoTron3.Shared.Services;
-
-using Microsoft.EntityFrameworkCore;
 
 namespace UserGroupSiteNemoTron3.Server.Services;
 
