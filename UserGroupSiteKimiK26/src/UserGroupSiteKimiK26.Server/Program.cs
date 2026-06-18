@@ -1,5 +1,11 @@
 using System.Diagnostics;
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+using Serilog;
+
 using UserGroupSiteKimiK26.Client.Services;
 using UserGroupSiteKimiK26.Data.Interfaces;
 using UserGroupSiteKimiK26.Data.Models;
@@ -10,12 +16,6 @@ using UserGroupSiteKimiK26.Server.Components.Email;
 using UserGroupSiteKimiK26.Server.Services;
 using UserGroupSiteKimiK26.ServiceDefaults;
 using UserGroupSiteKimiK26.Shared.Services;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Serilog;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 

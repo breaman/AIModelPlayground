@@ -1,8 +1,8 @@
-using UserGroupSiteKimiK26.Data.Interfaces;
-
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+using UserGroupSiteKimiK26.Data.Interfaces;
 
 namespace UserGroupSiteKimiK26.Data.Models;
 

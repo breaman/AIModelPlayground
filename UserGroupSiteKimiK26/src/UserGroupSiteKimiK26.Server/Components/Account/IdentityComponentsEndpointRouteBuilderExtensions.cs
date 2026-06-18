@@ -1,10 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
 
-using UserGroupSiteKimiK26.Data.Models;
-using UserGroupSiteKimiK26.Server.Components.Account.Pages;
-using UserGroupSiteKimiK26.Server.Components.Account.Pages.Manage;
-
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -12,6 +8,10 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+
+using UserGroupSiteKimiK26.Data.Models;
+using UserGroupSiteKimiK26.Server.Components.Account.Pages;
+using UserGroupSiteKimiK26.Server.Components.Account.Pages.Manage;
 
 namespace UserGroupSiteKimiK26.Server.Components.Account;
 

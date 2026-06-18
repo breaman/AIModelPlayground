@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
+
 using UserGroupSiteKimiK26.Shared.Dtos;
 using UserGroupSiteKimiK26.Shared.Services;
-
-using Microsoft.AspNetCore.Authorization;
 
 namespace UserGroupSiteKimiK26.Server.Api;
 

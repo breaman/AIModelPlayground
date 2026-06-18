@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using UserGroupSiteKimiK26.Data.Models;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+
+using UserGroupSiteKimiK26.Data.Models;
 
 namespace UserGroupSiteKimiK26.Server.Services;
 

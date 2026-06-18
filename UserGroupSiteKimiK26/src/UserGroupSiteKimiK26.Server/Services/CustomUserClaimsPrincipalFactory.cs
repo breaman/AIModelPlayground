@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using UserGroupSiteKimiK26.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteKimiK26.Data.Models;
 
 namespace UserGroupSiteKimiK26.Server.Services;
 

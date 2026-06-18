@@ -1,6 +1,6 @@
-using UserGroupSiteKimiK26.Data.Interfaces;
-
 using Microsoft.EntityFrameworkCore;
+
+using UserGroupSiteKimiK26.Data.Interfaces;
 
 namespace UserGroupSiteKimiK26.Data.Models;
 

@@ -1,12 +1,11 @@
 using System.Security.Claims;
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+
 using UserGroupSiteKimiK26.Data.Models;
 using UserGroupSiteKimiK26.Shared.Dtos;
 using UserGroupSiteKimiK26.Shared.Services;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace UserGroupSiteKimiK26.Server.Api;
 

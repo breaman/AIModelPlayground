@@ -1,9 +1,9 @@
+using Microsoft.EntityFrameworkCore;
+
 using UserGroupSiteKimiK26.Data.Interfaces;
 using UserGroupSiteKimiK26.Data.Models;
 using UserGroupSiteKimiK26.Shared.Dtos;
 using UserGroupSiteKimiK26.Shared.Services;
-
-using Microsoft.EntityFrameworkCore;
 
 namespace UserGroupSiteKimiK26.Server.Services;
 

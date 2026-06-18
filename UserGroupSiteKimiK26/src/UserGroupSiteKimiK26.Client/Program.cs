@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+
 using UserGroupSiteKimiK26.Client.Services;
 using UserGroupSiteKimiK26.Shared.Services;
-
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
