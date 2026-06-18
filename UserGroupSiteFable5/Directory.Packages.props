@@ -19,7 +19,6 @@
     This would typically list all NuGet packages used within this solution.
     -->
   <ItemGroup>
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.4.5" />
     <PackageVersion Include="Aspire.Hosting.EntityFrameworkCore" Version="13.4.5-preview.1.26316.12" />
     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.4.5" />
     <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.4.5" />
