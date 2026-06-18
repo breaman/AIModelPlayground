@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using UserGroupSiteQwen35.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteQwen35.Data.Models;
 
 namespace UserGroupSiteQwen35.Server.Services;
 

@@ -1,7 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+
 using UserGroupSiteQwen35.Data.Interfaces;
 using UserGroupSiteQwen35.Data.Models;
-
-using Microsoft.EntityFrameworkCore;
 
 namespace UserGroupSiteQwen35.Data.Repositories;
 

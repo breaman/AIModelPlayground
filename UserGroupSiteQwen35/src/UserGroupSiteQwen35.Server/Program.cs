@@ -1,5 +1,11 @@
 using System.Diagnostics;
 
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+using Serilog;
+
 using UserGroupSiteQwen35.Client.Services;
 using UserGroupSiteQwen35.Data.Interfaces;
 using UserGroupSiteQwen35.Data.Models;
@@ -12,12 +18,6 @@ using UserGroupSiteQwen35.Server.Endpoints;
 using UserGroupSiteQwen35.Server.Services;
 using UserGroupSiteQwen35.ServiceDefaults;
 using UserGroupSiteQwen35.Shared.Services;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Serilog;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 

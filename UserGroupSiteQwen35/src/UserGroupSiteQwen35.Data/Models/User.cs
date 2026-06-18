@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-using UserGroupSiteQwen35.Data.Interfaces;
-
 using Microsoft.AspNetCore.Identity;
+
+using UserGroupSiteQwen35.Data.Interfaces;
 
 namespace UserGroupSiteQwen35.Data.Models;
 

@@ -1,6 +1,6 @@
-using UserGroupSiteQwen35.Data.Interfaces;
-
 using Microsoft.EntityFrameworkCore;
+
+using UserGroupSiteQwen35.Data.Interfaces;
 
 namespace UserGroupSiteQwen35.Data.Models;
 

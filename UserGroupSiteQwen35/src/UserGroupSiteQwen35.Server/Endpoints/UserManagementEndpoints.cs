@@ -1,11 +1,9 @@
 using System.Security.Claims;
 
+using Microsoft.AspNetCore.Identity;
+
 using UserGroupSiteQwen35.Data.Models;
 using UserGroupSiteQwen35.Server.Services;
-using UserGroupSiteQwen35.Shared.Dto;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 
 namespace UserGroupSiteQwen35.Server.Endpoints;
 

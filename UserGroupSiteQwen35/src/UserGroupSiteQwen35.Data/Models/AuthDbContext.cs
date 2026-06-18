@@ -1,8 +1,8 @@
-using UserGroupSiteQwen35.Data.Interfaces;
-
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+using UserGroupSiteQwen35.Data.Interfaces;
 
 namespace UserGroupSiteQwen35.Data.Models;
 
