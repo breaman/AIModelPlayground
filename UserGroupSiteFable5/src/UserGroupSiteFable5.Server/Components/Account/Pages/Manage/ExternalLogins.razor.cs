@@ -1,8 +1,8 @@
-using UserGroupSiteFable5.Data.Models;
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
+
+using UserGroupSiteFable5.Data.Models;
 
 namespace UserGroupSiteFable5.Server.Components.Account.Pages.Manage;
 

@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using UserGroupSiteFable5.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteFable5.Data.Models;
 
 namespace UserGroupSiteFable5.Server.Services;
 

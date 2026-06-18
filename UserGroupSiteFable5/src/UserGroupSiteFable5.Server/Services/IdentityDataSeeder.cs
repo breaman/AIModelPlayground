@@ -1,6 +1,6 @@
-using UserGroupSiteFable5.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
+
+using UserGroupSiteFable5.Data.Models;
 
 namespace UserGroupSiteFable5.Server.Services;
 

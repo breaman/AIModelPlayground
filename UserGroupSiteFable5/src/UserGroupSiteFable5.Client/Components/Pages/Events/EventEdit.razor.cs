@@ -1,9 +1,9 @@
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+
 using UserGroupSiteFable5.Shared.Dtos;
 using UserGroupSiteFable5.Shared.Helpers;
 using UserGroupSiteFable5.Shared.Services;
-
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace UserGroupSiteFable5.Client.Components.Pages.Events;
 

@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+
 using UserGroupSiteFable5.Client.Services;
 using UserGroupSiteFable5.Shared.Services;
-
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 

@@ -1,12 +1,12 @@
-using UserGroupSiteFable5.Data.Models;
-using UserGroupSiteFable5.Server.Services;
-using UserGroupSiteFable5.Shared.Dtos;
-using UserGroupSiteFable5.Shared.Services;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteFable5.Data.Models;
+using UserGroupSiteFable5.Server.Services;
+using UserGroupSiteFable5.Shared.Dtos;
+using UserGroupSiteFable5.Shared.Services;
 
 using Xunit;
 

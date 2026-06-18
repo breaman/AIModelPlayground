@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Components;
+
 using UserGroupSiteFable5.Shared.Dtos;
 using UserGroupSiteFable5.Shared.Services;
-
-using Microsoft.AspNetCore.Components;
 
 namespace UserGroupSiteFable5.Client.Components.Pages.Topics;
 

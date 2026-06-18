@@ -1,6 +1,6 @@
-using UserGroupSiteFable5.Data.Interfaces;
-
 using Microsoft.AspNetCore.Identity;
+
+using UserGroupSiteFable5.Data.Interfaces;
 
 namespace UserGroupSiteFable5.Data.Models;
 

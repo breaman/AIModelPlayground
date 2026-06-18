@@ -1,6 +1,6 @@
-using UserGroupSiteFable5.Data.Interfaces;
-
 using Microsoft.EntityFrameworkCore;
+
+using UserGroupSiteFable5.Data.Interfaces;
 
 namespace UserGroupSiteFable5.Data.Models;
 

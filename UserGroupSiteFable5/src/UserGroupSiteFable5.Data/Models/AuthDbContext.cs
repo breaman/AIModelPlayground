@@ -1,8 +1,8 @@
-using UserGroupSiteFable5.Data.Interfaces;
-
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+using UserGroupSiteFable5.Data.Interfaces;
 
 namespace UserGroupSiteFable5.Data.Models;
 

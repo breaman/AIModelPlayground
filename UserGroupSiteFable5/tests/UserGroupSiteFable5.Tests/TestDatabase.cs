@@ -1,8 +1,8 @@
-using UserGroupSiteFable5.Data.Interfaces;
-using UserGroupSiteFable5.Data.Models;
-
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+
+using UserGroupSiteFable5.Data.Interfaces;
+using UserGroupSiteFable5.Data.Models;
 
 namespace UserGroupSiteFable5.Tests;
 

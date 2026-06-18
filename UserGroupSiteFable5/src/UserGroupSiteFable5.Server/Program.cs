@@ -1,5 +1,10 @@
 using System.Diagnostics;
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+using Serilog;
+
 using UserGroupSiteFable5.Client.Services;
 using UserGroupSiteFable5.Data.Interfaces;
 using UserGroupSiteFable5.Data.Models;
@@ -10,11 +15,6 @@ using UserGroupSiteFable5.Server.Endpoints;
 using UserGroupSiteFable5.Server.Services;
 using UserGroupSiteFable5.ServiceDefaults;
 using UserGroupSiteFable5.Shared.Services;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Serilog;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 
