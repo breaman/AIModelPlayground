@@ -1,10 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
 
-using UserGroupSiteOpus48.Data.Models;
-using UserGroupSiteOpus48.Server.Components.Account.Pages;
-using UserGroupSiteOpus48.Server.Components.Account.Pages.Manage;
-
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -12,6 +8,10 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+
+using UserGroupSiteOpus48.Data.Models;
+using UserGroupSiteOpus48.Server.Components.Account.Pages;
+using UserGroupSiteOpus48.Server.Components.Account.Pages.Manage;
 
 namespace UserGroupSiteOpus48.Server.Components.Account;
 

@@ -1,11 +1,11 @@
+using Microsoft.AspNetCore.Identity;
+
+using NSubstitute;
+
 using UserGroupSiteOpus48.Data.Models;
 using UserGroupSiteOpus48.Server.Services;
 using UserGroupSiteOpus48.Shared.Authorization;
 using UserGroupSiteOpus48.Shared.Dtos;
-
-using Microsoft.AspNetCore.Identity;
-
-using NSubstitute;
 
 using Xunit;
 

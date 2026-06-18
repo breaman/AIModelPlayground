@@ -1,9 +1,9 @@
 using System.Security.Claims;
 
-using UserGroupSiteOpus48.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteOpus48.Data.Models;
 
 namespace UserGroupSiteOpus48.Server.Services;
 

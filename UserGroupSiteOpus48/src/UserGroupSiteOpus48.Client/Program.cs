@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+
 using UserGroupSiteOpus48.Client.Services;
 using UserGroupSiteOpus48.Shared.Services;
-
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 

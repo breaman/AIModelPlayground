@@ -1,6 +1,6 @@
-using UserGroupSiteOpus48.Data.Interfaces;
-
 using Microsoft.EntityFrameworkCore;
+
+using UserGroupSiteOpus48.Data.Interfaces;
 
 namespace UserGroupSiteOpus48.Data.Models;
 

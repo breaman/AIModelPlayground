@@ -1,8 +1,8 @@
-using UserGroupSiteOpus48.Data.Models;
-using UserGroupSiteOpus48.Shared.Authorization;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using UserGroupSiteOpus48.Data.Models;
+using UserGroupSiteOpus48.Shared.Authorization;
 
 namespace UserGroupSiteOpus48.Server.Services;
 

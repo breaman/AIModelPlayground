@@ -1,8 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+
 using UserGroupSiteOpus48.Data.Interfaces;
 using UserGroupSiteOpus48.Data.Models;
 using UserGroupSiteOpus48.Server.Services;
-
-using Microsoft.EntityFrameworkCore;
 
 using Xunit;
 

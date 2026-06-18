@@ -1,7 +1,7 @@
-using UserGroupSiteOpus48.Shared.Authorization;
-
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+
+using UserGroupSiteOpus48.Shared.Authorization;
 
 namespace UserGroupSiteOpus48.Server.Components.Layout;
 

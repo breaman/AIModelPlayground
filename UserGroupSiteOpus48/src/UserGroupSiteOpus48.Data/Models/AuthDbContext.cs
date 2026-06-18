@@ -1,8 +1,8 @@
-using UserGroupSiteOpus48.Data.Interfaces;
-
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+using UserGroupSiteOpus48.Data.Interfaces;
 
 namespace UserGroupSiteOpus48.Data.Models;
 

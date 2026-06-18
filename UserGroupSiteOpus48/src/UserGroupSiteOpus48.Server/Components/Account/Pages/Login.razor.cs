@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 
-using UserGroupSiteOpus48.Data.Models;
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Identity;
+
+using UserGroupSiteOpus48.Data.Models;
 
 namespace UserGroupSiteOpus48.Server.Components.Account.Pages;
 

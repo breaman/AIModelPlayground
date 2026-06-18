@@ -1,5 +1,10 @@
 using System.Diagnostics;
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+using Serilog;
+
 using UserGroupSiteOpus48.Client.Services;
 using UserGroupSiteOpus48.Data.Interfaces;
 using UserGroupSiteOpus48.Data.Models;
@@ -11,11 +16,6 @@ using UserGroupSiteOpus48.Server.Services;
 using UserGroupSiteOpus48.ServiceDefaults;
 using UserGroupSiteOpus48.Shared.Authorization;
 using UserGroupSiteOpus48.Shared.Services;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Serilog;
 
 Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
 

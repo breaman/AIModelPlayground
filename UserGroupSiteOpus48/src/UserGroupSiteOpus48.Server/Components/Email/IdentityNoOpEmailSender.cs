@@ -1,7 +1,7 @@
-using UserGroupSiteOpus48.Data.Models;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+
+using UserGroupSiteOpus48.Data.Models;
 
 namespace UserGroupSiteOpus48.Server.Components.Email;
 

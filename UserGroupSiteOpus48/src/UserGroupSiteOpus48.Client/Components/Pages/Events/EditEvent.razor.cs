@@ -1,8 +1,8 @@
+using Microsoft.AspNetCore.Components;
+
 using UserGroupSiteOpus48.Shared.Dtos;
 using UserGroupSiteOpus48.Shared.Services;
 using UserGroupSiteOpus48.Shared.Text;
-
-using Microsoft.AspNetCore.Components;
 
 namespace UserGroupSiteOpus48.Client.Components.Pages.Events;
 
