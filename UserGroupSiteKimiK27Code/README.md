@@ -29,3 +29,15 @@ This project is configured with aspire, so the recommended way to kick off proje
 cd aspire/UserGroupSiteKimiK27Code.AppHost
 dotnet watch
 ```
+
+Kimi K2.7 Code decided to create a site.js file and place it directly in the wwwroot/js directory. Since the wwwroot directory is ignored by the .gitignore file, here is the copy of the file contents and will need to be manually added so the project will work
+
+```
+function showBootstrapToast(elementId) {
+    const element = document.getElementById(elementId);
+    if (element && typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+        const toast = bootstrap.Toast.getOrCreateInstance(element);
+        toast.show();
+    }
+}
+```
