@@ -1,0 +1,18 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.EntityFrameworkCore" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\UserGroupSiteGpt56Sol.Data\UserGroupSiteGpt56Sol.Data.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteGpt56Sol.Server\UserGroupSiteGpt56Sol.Server.csproj" />
+    <ProjectReference Include="..\UserGroupSiteGpt56Sol.ServiceDefaults\UserGroupSiteGpt56Sol.ServiceDefaults.csproj" IsAspireProjectResource="false" />
+  </ItemGroup>
+
+</Project>

@@ -162,7 +162,7 @@ Code structured in the following branch proposal (this may change as I wrie thin
   - create a UserGroupSiteGpt56Sol directory
   - navigate to the directory and type `dotnet new breaman.blazor`
   - launched with `codex`
-  - verify model is set to Gpt 5.5
+  - verify model is set to Gpt 5.6 Sol
   - pasted the above prompt into the command line
   - once the plan was created, ran `/clear` to clear out the session
   - typed `execute all phases of the plan in the @plan.md file`
