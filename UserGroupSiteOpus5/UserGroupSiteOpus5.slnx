@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/aspire/">
+    <Project Path="aspire/UserGroupSiteOpus5.AppHost/UserGroupSiteOpus5.AppHost.csproj" />
+    <Project Path="aspire/UserGroupSiteOpus5.ServiceDefaults/UserGroupSiteOpus5.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".config\dotnet-tools.json" />
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/UserGroupSiteOpus5.Client/UserGroupSiteOpus5.Client.csproj" />
+    <Project Path="src/UserGroupSiteOpus5.Data/UserGroupSiteOpus5.Data.csproj" />
+    <Project Path="src/UserGroupSiteOpus5.Server/UserGroupSiteOpus5.Server.csproj" />
+    <Project Path="src/UserGroupSiteOpus5.Shared/UserGroupSiteOpus5.Shared.csproj" />
+  </Folder>
+</Solution>

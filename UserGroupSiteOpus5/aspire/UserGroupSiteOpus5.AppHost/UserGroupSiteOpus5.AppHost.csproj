@@ -1,0 +1,18 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.EntityFrameworkCore" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\UserGroupSiteOpus5.Data\UserGroupSiteOpus5.Data.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteOpus5.Server\UserGroupSiteOpus5.Server.csproj" />
+    <ProjectReference Include="..\UserGroupSiteOpus5.ServiceDefaults\UserGroupSiteOpus5.ServiceDefaults.csproj" IsAspireProjectResource="false" />
+  </ItemGroup>
+
+</Project>

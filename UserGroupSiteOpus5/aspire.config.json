@@ -1,0 +1,8 @@
+{
+  "appHost": {
+    "path": "aspire/UserGroupSiteOpus5.AppHost/UserGroupSiteOpus5.AppHost.csproj"
+  },
+  "features": {
+    "defaultWatchEnabled": "true"
+  }
+}
