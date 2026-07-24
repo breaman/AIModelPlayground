@@ -13,6 +13,7 @@ This is just a sandbox area for me to experiment with different models and how t
   - GPT 5.5
   - GLM 5.2
   - GPT 5.6 Sol
+  - Opus 5
 - pass in the initial prompt that's only purpose is to have the AI model generate a plan for implementing a website
 - clear out the cache so it starts over again with no memory of the initial prompt
 - have the cli run all the steps that were laid out in the plan and see what the outcome is
@@ -163,6 +164,15 @@ Code structured in the following branch proposal (this may change as I wrie thin
   - navigate to the directory and type `dotnet new breaman.blazor`
   - launched with `codex`
   - verify model is set to Gpt 5.5
+  - pasted the above prompt into the command line
+  - once the plan was created, ran `/clear` to clear out the session
+  - typed `execute all phases of the plan in the @plan.md file`
+- 14-opus-5
+  - create a UserGroupSiteOpus5 directory
+  - navigate to the directory and type `dotnet new breaman.blazor`
+  - launched with `claude`
+  - verify model is set to opus 5
+  - hit `shift-tab` to put it into `accept edits on` mode
   - pasted the above prompt into the command line
   - once the plan was created, ran `/clear` to clear out the session
   - typed `execute all phases of the plan in the @plan.md file`
