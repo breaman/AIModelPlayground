@@ -1,0 +1,51 @@
+@page "/"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Events</PageTitle>
+
+<div class="py-4">
+    <h1>Technical User Group Events</h1>
+    <p class="lead">Meet, learn, and share with the community.</p>
+</div>
+
+@if (LoadFailed)
+{
+    <div class="alert alert-danger" role="alert">Events could not be loaded. Please try again.</div>
+}
+else if (Events is null)
+{
+    <div class="d-flex align-items-center gap-2" role="status">
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Loading events…
+    </div>
+}
+else if (Events.Count == 0)
+{
+    <div class="alert alert-info" role="status">No published events are available yet.</div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var item in Events)
+        {
+            <div class="col-12 col-lg-6">
+                <article class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h2 class="h4 card-title"><a href="/events/@item.Slug">@item.Title</a></h2>
+                        <p class="text-body-secondary mb-2">
+                            <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                            @FormatDate(item.StartsAtUtc)
+                        </p>
+                        <p class="text-body-secondary mb-2">
+                            <i class="bi bi-geo-alt" aria-hidden="true"></i> @item.Location
+                        </p>
+                        @if (!string.IsNullOrWhiteSpace(item.ShortDescription))
+                        {
+                            <p class="card-text">@item.ShortDescription</p>
+                        }
+                        <p class="mb-0"><strong>Speakers:</strong> @string.Join(", ", item.Speakers)</p>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+}

@@ -6,11 +6,15 @@ using UserGroupSiteGpt56Sol.Data.Models;
 using UserGroupSiteGpt56Sol.Server.Components;
 using UserGroupSiteGpt56Sol.Server.Components.Account;
 using UserGroupSiteGpt56Sol.Server.Components.Email;
+using UserGroupSiteGpt56Sol.Server.Authorization;
+using UserGroupSiteGpt56Sol.Server.Endpoints;
 using UserGroupSiteGpt56Sol.Server.Services;
 using UserGroupSiteGpt56Sol.ServiceDefaults;
+using UserGroupSiteGpt56Sol.Shared.Authorization;
 using UserGroupSiteGpt56Sol.Shared.Services;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 using Serilog;
@@ -50,7 +54,10 @@ try
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
         .AddIdentityCookies();
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+        options.AddPolicy(AppPolicies.EventEditor,
+            policy => policy.RequireAuthenticatedUser().AddRequirements(new EventEditorRequirement())));
+    builder.Services.AddScoped<IAuthorizationHandler, EventEditorAuthorizationHandler>();
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString(Constants.DatabaseConnectionString))
@@ -79,7 +86,12 @@ try
         .AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>();
 
     builder.Services.AddSingleton<IEmailSender<User>, IdentityNoOpEmailSender>();
+    builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<IUserService, HttpUserService>();
+    builder.Services.AddScoped<CurrentUserAccessor>();
+    builder.Services.AddScoped<IEventService, EventService>();
+    builder.Services.AddScoped<ITopicService, TopicService>();
+    builder.Services.AddScoped<IUserAdministrationService, UserAdministrationService>();
     builder.Services.AddScoped<IToastService, ToastService>();
 
     // Add route configuration to enforce lowercase URLs for better SEO
@@ -121,6 +133,12 @@ try
         .AddAdditionalAssemblies(typeof(UserGroupSiteGpt56Sol.Client._Imports).Assembly);
 
     app.MapAdditionalIdentityEndpoints();
+    app.MapApplicationEndpoints();
+
+    if (!isMigrations)
+    {
+        await RoleSeeder.SeedAsync(app.Services, app.Configuration, app.Logger, app.Lifetime.ApplicationStopping);
+    }
 
     app.Run();
 }

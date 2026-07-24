@@ -1,0 +1,136 @@
+@page "/events/manage/new"
+@page "/events/manage/{Id:int}"
+@attribute [Authorize(Roles = "Admin,Speaker")]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>@(Id.HasValue ? "Edit Event" : "Create Event")</PageTitle>
+
+<h1>@(Id.HasValue ? "Edit Event" : "Create Event")</h1>
+
+@if (LoadFailed)
+{
+    <div class="alert alert-danger" role="alert">The event could not be loaded or you do not have access.</div>
+}
+else if (Model is null)
+{
+    <p aria-live="polite">Loading editor…</p>
+}
+else
+{
+    <EditForm Model="Model" OnValidSubmit="SaveAsync" FormName="event-editor">
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" />
+        @if (ServerErrors.Count > 0)
+        {
+            <div class="alert alert-danger" role="alert">
+                <ul class="mb-0">
+                    @foreach (var error in ServerErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="Model.Title" id="event-title" class="form-control" placeholder="Title"
+                       @onblur="GenerateSlug" />
+            <label for="event-title">Title</label>
+            <ValidationMessage For="() => Model.Title" class="text-danger" />
+        </div>
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="Model.Slug" id="event-slug" class="form-control" placeholder="Slug" />
+            <label for="event-slug">Slug</label>
+            <ValidationMessage For="() => Model.Slug" class="text-danger" />
+        </div>
+        <div class="form-floating mb-3">
+            <InputTextArea @bind-Value="Model.ShortDescription" id="event-summary" class="form-control"
+                           placeholder="Summary" style="height: 6rem" />
+            <label for="event-summary">Short description</label>
+            <ValidationMessage For="() => Model.ShortDescription" class="text-danger" />
+        </div>
+
+        <div class="mb-3">
+            <div class="nav nav-tabs" role="tablist" aria-label="Description editor">
+                <button class="nav-link @(Previewing ? "" : "active")" type="button" role="tab"
+                        aria-selected="@(!Previewing)" @onclick="() => Previewing = false">Edit</button>
+                <button class="nav-link @(Previewing ? "active" : "")" type="button" role="tab"
+                        aria-selected="@Previewing" @onclick="() => Previewing = true">Preview</button>
+            </div>
+            <div class="border border-top-0 rounded-bottom p-3">
+                @if (Previewing)
+                {
+                    @if (string.IsNullOrWhiteSpace(Model.DescriptionMarkdown))
+                    {
+                        <p class="text-body-secondary mb-0">Nothing to preview.</p>
+                    }
+                    else
+                    {
+                        <div>@((MarkupString)PreviewHtml)</div>
+                    }
+                }
+                else
+                {
+                    <div class="form-floating">
+                        <InputTextArea @bind-Value="Model.DescriptionMarkdown" id="event-description"
+                                       class="form-control" placeholder="Markdown description" style="height: 16rem" />
+                        <label for="event-description">Markdown description</label>
+                    </div>
+                    <ValidationMessage For="() => Model.DescriptionMarkdown" class="text-danger" />
+                }
+            </div>
+        </div>
+
+        <div class="form-floating mb-3">
+            <InputDate @bind-Value="Model.StartsAtUtc" Type="InputDateType.DateTimeLocal" id="event-date"
+                       class="form-control" placeholder="Date and time" />
+            <label for="event-date">Date and time (UTC)</label>
+            <ValidationMessage For="() => Model.StartsAtUtc" class="text-danger" />
+        </div>
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="Model.Location" id="event-location" class="form-control" placeholder="Location" />
+            <label for="event-location">Location</label>
+            <ValidationMessage For="() => Model.Location" class="text-danger" />
+        </div>
+
+        <fieldset class="mb-3" disabled="@(!IsAdmin)">
+            <legend class="h6">Speakers</legend>
+            @if (Speakers is null)
+            {
+                <p>Loading speakers…</p>
+            }
+            else if (Speakers.Count == 0)
+            {
+                <p class="text-body-secondary">Grant users the Speaker role before assigning them.</p>
+            }
+            else
+            {
+                @foreach (var speaker in Speakers)
+                {
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="speaker-option-@speaker.Id"
+                               checked="@Model.SpeakerIds.Contains(speaker.Id)"
+                               @onchange="args => ToggleSpeaker(speaker.Id, (bool?)args.Value == true)" />
+                        <label class="form-check-label" for="speaker-option-@speaker.Id">@speaker.DisplayName (@speaker.Email)</label>
+                    </div>
+                }
+            }
+            @if (!IsAdmin)
+            {
+                <div class="form-text">Only administrators can change speaker assignments.</div>
+            }
+            <ValidationMessage For="() => Model.SpeakerIds" class="text-danger" />
+        </fieldset>
+
+        <div class="form-check form-switch mb-4">
+            <InputCheckbox @bind-Value="Model.IsPublished" id="event-published" class="form-check-input" />
+            <label class="form-check-label" for="event-published">Published</label>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" type="submit" disabled="@Saving">
+                <i class="bi bi-save" aria-hidden="true"></i> Save
+            </button>
+            <a class="btn btn-outline-secondary" href="/events/manage">Cancel</a>
+        </div>
+    </EditForm>
+}

@@ -28,7 +28,7 @@ var server = builder.AddProject<Projects.UserGroupSiteGpt56Sol_Server>("server",
     .WithReference(db);
 
 var migrations = server.AddEFMigrations("ef-migrations")
-    .WithMigrationsProject<Projects.UserGroupSiteGpt56Sol_Data>()
+    .WithMigrationsProject("../../src/UserGroupSiteGpt56Sol.Data/UserGroupSiteGpt56Sol.Data.csproj")
     .RunDatabaseUpdateOnStart()
     .WithCommand("dotnet-tools", "Restore Tools", async (ExecuteCommandContext x) =>
     {

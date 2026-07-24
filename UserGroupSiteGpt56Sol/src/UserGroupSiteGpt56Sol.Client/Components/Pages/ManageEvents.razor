@@ -1,0 +1,48 @@
+@page "/events/manage"
+@attribute [Authorize(Roles = "Admin,Speaker")]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Manage Events</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Manage Events</h1>
+        <p class="text-body-secondary mb-0">Edit events assigned to you.</p>
+    </div>
+    @if (IsAdmin)
+    {
+        <a class="btn btn-primary" href="/events/manage/new"><i class="bi bi-plus-circle" aria-hidden="true"></i> Create event</a>
+    }
+</div>
+
+@if (LoadFailed)
+{
+    <div class="alert alert-danger" role="alert">Events could not be loaded.</div>
+}
+else if (Events is null)
+{
+    <p aria-live="polite">Loading events…</p>
+}
+else if (Events.Count == 0)
+{
+    <div class="alert alert-info">No events are available for you to edit.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Title</th><th>Date</th><th>Status</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+            <tbody>
+            @foreach (var item in Events)
+            {
+                <tr>
+                    <td>@item.Title<br /><small class="text-body-secondary">/@item.Slug</small></td>
+                    <td>@(item.StartsAtUtc.HasValue ? FormatDate(item.StartsAtUtc.Value) : "Not set")</td>
+                    <td><span class="badge @(item.IsPublished ? "text-bg-success" : "text-bg-secondary")">@(item.IsPublished ? "Published" : "Draft")</span></td>
+                    <td><a class="btn btn-sm btn-outline-primary" href="/events/manage/@item.Id"><i class="bi bi-pencil" aria-hidden="true"></i> Edit</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

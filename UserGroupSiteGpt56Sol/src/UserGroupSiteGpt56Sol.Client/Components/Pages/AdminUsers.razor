@@ -1,0 +1,63 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = AppRoles.Admin)]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>User Administration</PageTitle>
+
+<h1>User Administration</h1>
+<p class="text-body-secondary">Manage the roles that control event administration and speaker eligibility.</p>
+
+@if (LoadFailed)
+{
+    <div class="alert alert-danger" role="alert">Users could not be loaded.</div>
+}
+else if (Users is null)
+{
+    <p aria-live="polite">Loading users…</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+            <tr><th>Name</th><th>Email</th><th>Admin</th><th>Speaker</th><th><span class="visually-hidden">Actions</span></th></tr>
+            </thead>
+            <tbody>
+            @foreach (var user in Users)
+            {
+                <tr>
+                    <td>@user.DisplayName</td>
+                    <td>@user.Email</td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="admin-@user.Id"
+                                   checked="@IsInRole(user, AppRoles.Admin)"
+                                   disabled="@(user.IsCurrentUser || BusyUserId == user.Id)"
+                                   @onchange="args => SetRoleAsync(user, AppRoles.Admin, (bool?)args.Value == true)" />
+                            <label class="form-check-label" for="admin-@user.Id">Admin</label>
+                        </div>
+                        @if (user.IsCurrentUser)
+                        {
+                            <small class="text-body-secondary">You cannot remove your own Admin role.</small>
+                        }
+                    </td>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="speaker-@user.Id"
+                                   checked="@IsInRole(user, AppRoles.Speaker)" disabled="@(BusyUserId == user.Id)"
+                                   @onchange="args => SetRoleAsync(user, AppRoles.Speaker, (bool?)args.Value == true)" />
+                            <label class="form-check-label" for="speaker-@user.Id">Speaker</label>
+                        </div>
+                    </td>
+                    <td>
+                        @if (BusyUserId == user.Id)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Saving</span></span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

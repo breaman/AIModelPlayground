@@ -1,0 +1,91 @@
+@page "/topics"
+@attribute [Authorize]
+@rendermode InteractiveWebAssembly
+
+<PageTitle>Topic Suggestions</PageTitle>
+
+<div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-center mb-4">
+    <div>
+        <h1>Topic Suggestions</h1>
+        <p class="text-body-secondary mb-0">Propose, vote for, or volunteer to present a community topic.</p>
+    </div>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#topicForm"
+            aria-expanded="false" aria-controls="topicForm">
+        <i class="bi bi-plus-circle" aria-hidden="true"></i> Suggest a topic
+    </button>
+</div>
+
+<div class="collapse mb-4" id="topicForm">
+    <div class="card card-body">
+        <EditForm Model="NewTopic" OnValidSubmit="CreateAsync" FormName="create-topic">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="NewTopic.Title" id="topic-title" class="form-control" placeholder="Title" />
+                <label for="topic-title">Topic title</label>
+                <ValidationMessage For="() => NewTopic.Title" class="text-danger" />
+            </div>
+            <div class="form-floating mb-3">
+                <InputTextArea @bind-Value="NewTopic.SupportingDetails" id="topic-details" class="form-control"
+                               placeholder="Details" style="height: 8rem" />
+                <label for="topic-details">Supporting details (optional)</label>
+                <ValidationMessage For="() => NewTopic.SupportingDetails" class="text-danger" />
+            </div>
+            <button class="btn btn-primary" type="submit" disabled="@Busy">Submit suggestion</button>
+        </EditForm>
+    </div>
+</div>
+
+@if (LoadFailed)
+{
+    <div class="alert alert-danger" role="alert">Topics could not be loaded. Please try again.</div>
+}
+else if (TopicsList is null)
+{
+    <p aria-live="polite">Loading topics…</p>
+}
+else if (TopicsList.Count == 0)
+{
+    <div class="alert alert-info">No topics have been suggested. Be the first!</div>
+}
+else
+{
+    <div class="vstack gap-3">
+        @foreach (var topic in TopicsList)
+        {
+            <article class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between gap-3">
+                        <div>
+                            <h2 class="h5">@topic.Title</h2>
+                            <p class="small text-body-secondary">Suggested by @topic.CreatorName · @FormatDate(topic.CreatedOnUtc)</p>
+                        </div>
+                        <span class="badge text-bg-secondary align-self-start">@topic.VoteCount vote@(topic.VoteCount == 1 ? "" : "s")</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(topic.SupportingDetails))
+                    {
+                        <p>@topic.SupportingDetails</p>
+                    }
+                    @if (topic.VolunteerName is not null)
+                    {
+                        <p class="mb-3"><i class="bi bi-person-check" aria-hidden="true"></i> <strong>Volunteer:</strong> @topic.VolunteerName</p>
+                    }
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-sm @(topic.HasCurrentUserVote ? "btn-outline-secondary" : "btn-outline-primary")"
+                                type="button" disabled="@Busy" @onclick="() => ToggleVoteAsync(topic)">
+                            <i class="bi @(topic.HasCurrentUserVote ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up")" aria-hidden="true"></i>
+                            @(topic.HasCurrentUserVote ? "Remove vote" : "Vote")
+                        </button>
+                        @if (topic.VolunteerName is null)
+                        {
+                            <button class="btn btn-sm btn-outline-success" type="button" disabled="@Busy"
+                                    @onclick="() => VolunteerAsync(topic.Id)">
+                                <i class="bi bi-mic" aria-hidden="true"></i> Volunteer
+                            </button>
+                        }
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+}

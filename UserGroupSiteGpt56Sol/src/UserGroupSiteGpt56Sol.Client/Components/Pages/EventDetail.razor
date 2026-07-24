@@ -1,0 +1,39 @@
+@page "/events/{Slug}"
+@rendermode InteractiveWebAssembly
+
+<PageTitle>@(Event?.Title ?? "Event")</PageTitle>
+
+@if (LoadFailed)
+{
+    <div class="alert alert-danger" role="alert">This event could not be loaded.</div>
+}
+else if (Event is null && !NotFound)
+{
+    <p aria-live="polite">Loading event…</p>
+}
+else if (NotFound)
+{
+    <div class="alert alert-warning" role="alert">
+        <h1 class="h4">Event not found</h1>
+        <p class="mb-0">The event does not exist or is not published.</p>
+    </div>
+}
+else if (Event is not null)
+{
+    <article>
+        <h1>@Event.Title</h1>
+        @if (!string.IsNullOrWhiteSpace(Event.ShortDescription))
+        {
+            <p class="lead">@Event.ShortDescription</p>
+        }
+        <dl class="row">
+            <dt class="col-sm-3"><i class="bi bi-calendar-event" aria-hidden="true"></i> Date</dt>
+            <dd class="col-sm-9">@FormatDate(Event.StartsAtUtc)</dd>
+            <dt class="col-sm-3"><i class="bi bi-geo-alt" aria-hidden="true"></i> Location</dt>
+            <dd class="col-sm-9">@Event.Location</dd>
+            <dt class="col-sm-3"><i class="bi bi-mic" aria-hidden="true"></i> Speakers</dt>
+            <dd class="col-sm-9">@string.Join(", ", Event.Speakers)</dd>
+        </dl>
+        <div class="event-description">@((MarkupString)Event.DescriptionHtml)</div>
+    </article>
+}

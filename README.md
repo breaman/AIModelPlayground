@@ -165,4 +165,6 @@ Code structured in the following branch proposal (this may change as I wrie thin
   - verify model is set to Gpt 5.6 Sol
   - pasted the above prompt into the command line
   - once the plan was created, ran `/clear` to clear out the session
-  - typed `execute all phases of the plan in the @plan.md file`
+  - in order to try and level the playing field for programming skills, I did type `this repository uses claude "rules" for coding conventions. add the ability for codex to use these same rules instructions when it makes programming decisions` to get it try and use thsoe instructions for coding.
+  - typed `/clear` again to empty out the memory
+  - typed `implement all phases of the plan in the @plan.md file`

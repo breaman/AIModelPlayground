@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\UserGroupSiteGpt56Sol.Data\UserGroupSiteGpt56Sol.Data.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteGpt56Sol.Data\UserGroupSiteGpt56Sol.Data.csproj" IsAspireProjectResource="false" />
     <ProjectReference Include="..\..\src\UserGroupSiteGpt56Sol.Server\UserGroupSiteGpt56Sol.Server.csproj" />
     <ProjectReference Include="..\UserGroupSiteGpt56Sol.ServiceDefaults\UserGroupSiteGpt56Sol.ServiceDefaults.csproj" IsAspireProjectResource="false" />
   </ItemGroup>

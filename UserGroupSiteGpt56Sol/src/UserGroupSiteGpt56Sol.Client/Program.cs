@@ -16,5 +16,9 @@ builder.Services.AddScoped(sp =>
     });
 
 builder.Services.AddScoped<IToastService, ToastService>();
+builder.Services.AddScoped<AntiforgeryHttpClient>();
+builder.Services.AddScoped<IEventService, ClientEventService>();
+builder.Services.AddScoped<ITopicService, ClientTopicService>();
+builder.Services.AddScoped<IUserAdministrationService, ClientUserAdministrationService>();
 
 await builder.Build().RunAsync();

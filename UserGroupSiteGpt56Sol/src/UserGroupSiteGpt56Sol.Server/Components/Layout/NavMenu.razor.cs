@@ -8,7 +8,7 @@ public partial class NavMenu : ComponentBase
     [CascadingParameter]
     private Task<AuthenticationState>? AuthenticationStateTask { get; set; }
 
-    private string FirstName { get; set; } = "";
+    private string FirstName { get; set; } = "Member";
 
     protected override async Task OnInitializedAsync()
     {
@@ -19,7 +19,7 @@ public partial class NavMenu : ComponentBase
             if (user.Identity?.IsAuthenticated == true)
             {
                 var firstNameClaim = user.FindFirst("FirstName");
-                FirstName = firstNameClaim?.Value ?? user.Identity.Name ?? "";
+                FirstName = firstNameClaim?.Value ?? user.Identity.Name ?? "Member";
             }
         }
     }
