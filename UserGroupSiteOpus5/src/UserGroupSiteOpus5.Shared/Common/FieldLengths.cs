@@ -60,4 +60,20 @@ public static class FieldLengths
 
     /// <summary>Outbox/notification event type discriminator.</summary>
     public const int EventType = 200;
+
+    /// <summary>Meeting/event title as shown in listings and headings.</summary>
+    public const int EventTitle = 200;
+
+    /// <summary>URL slug identifying an event. Matches <see cref="EventTitle"/> because a slug is
+    /// generated from the title and must not truncate below it.</summary>
+    public const int Slug = 200;
+
+    /// <summary>Teaser text shown in event listings.</summary>
+    public const int ShortDescription = 500;
+
+    /// <summary>Venue or meeting location, including room details.</summary>
+    public const int Location = 300;
+
+    /// <summary>Suggested topic title.</summary>
+    public const int TopicTitle = 200;
 }

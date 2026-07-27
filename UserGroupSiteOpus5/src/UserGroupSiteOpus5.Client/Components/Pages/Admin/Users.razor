@@ -1,0 +1,102 @@
+@page "/admin/users"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize(Policy = PolicyNames.AdminOnly)]
+
+<PageTitle>Members</PageTitle>
+
+<div class="mb-4">
+    <h1 class="h2 mb-1">Members</h1>
+    <p class="text-body-secondary mb-0">
+        Grant and revoke the Admin and Speaker roles. Changes take effect the next time the member's
+        session is revalidated.
+    </p>
+</div>
+
+@if (AllUsers is null)
+{
+    <div class="d-flex align-items-center gap-2 text-body-secondary" role="status">
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>Loading members…</span>
+    </div>
+}
+else
+{
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="form-floating">
+                <input type="search"
+                       id="member-search"
+                       class="form-control"
+                       placeholder="Search members"
+                       value="@SearchTerm"
+                       @oninput="OnSearchChanged" />
+                <label for="member-search">Search by name or email</label>
+            </div>
+        </div>
+    </div>
+
+    @if (VisibleUsers.Count == 0)
+    {
+        <div class="card border-0 bg-body-tertiary">
+            <div class="card-body text-center py-5">
+                <h2 class="h5">No members match “@SearchTerm”</h2>
+                <p class="text-body-secondary mb-0">Try a different name or email.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <caption class="visually-hidden">Members and their roles</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Member since</th>
+                        <th scope="col" class="text-center">Admin</th>
+                        <th scope="col" class="text-center">Speaker</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var member in VisibleUsers)
+                    {
+                        var isSelf = member.Id == CurrentUserId;
+                        <tr>
+                            <th scope="row" class="fw-semibold">
+                                @member.DisplayName
+                                @if (isSelf)
+                                {
+                                    <span class="badge text-bg-info ms-1">You</span>
+                                }
+                            </th>
+                            <td>@member.Email</td>
+                            <td>@member.MemberSince.ToLocalTime().ToString("d MMM yyyy")</td>
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       checked="@member.IsAdmin"
+                                       disabled="@(isSelf || IsBusy(member.Id))"
+                                       title="@(isSelf ? "You cannot remove your own Admin role" : null)"
+                                       aria-label="@($"Admin role for {member.DisplayName}")"
+                                       @onchange="e => SetRolesAsync(member, isAdmin: e.Value is true, isSpeaker: member.IsSpeaker)" />
+                            </td>
+                            <td class="text-center">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       checked="@member.IsSpeaker"
+                                       disabled="@IsBusy(member.Id)"
+                                       aria-label="@($"Speaker role for {member.DisplayName}")"
+                                       @onchange="e => SetRolesAsync(member, isAdmin: member.IsAdmin, isSpeaker: e.Value is true)" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <p class="text-body-secondary small">
+            Showing @VisibleUsers.Count of @AllUsers.Count members.
+        </p>
+    }
+}

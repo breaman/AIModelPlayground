@@ -1,0 +1,70 @@
+@page "/events/{Slug}"
+
+@if (Meeting is null)
+{
+    <PageTitle>Meeting not found</PageTitle>
+    <h1 class="h3">Meeting not found</h1>
+    <p class="text-body-secondary">
+        We could not find a meeting at this address. It may have been removed, or the link may be
+        mistyped.
+    </p>
+    <a class="btn btn-outline-secondary" href="/events">
+        <span class="bi bi-arrow-left" aria-hidden="true"></span> Back to all meetings
+    </a>
+}
+else
+{
+    <PageTitle>@Meeting.Title</PageTitle>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/events">Meetings</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Meeting.Title</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+        <div>
+            <h1 class="h2 mb-1">@Meeting.Title</h1>
+            @if (!Meeting.IsPublished)
+            {
+                <span class="badge text-bg-warning">Draft — not publicly visible</span>
+            }
+        </div>
+        @if (Meeting.CanEdit)
+        {
+            <a class="btn btn-primary" href="@($"/events/{Meeting.Id}/edit")">
+                <span class="bi bi-pencil" aria-hidden="true"></span> Edit
+            </a>
+        }
+    </div>
+
+    <dl class="row mb-4">
+        @if (Meeting.EventDateTime is { } when)
+        {
+            <dt class="col-sm-3">When</dt>
+            <dd class="col-sm-9">@when.ToLocalTime().ToString("dddd d MMMM yyyy, HH:mm")</dd>
+        }
+        @if (!string.IsNullOrWhiteSpace(Meeting.Location))
+        {
+            <dt class="col-sm-3">Where</dt>
+            <dd class="col-sm-9">@Meeting.Location</dd>
+        }
+        @if (Meeting.Speakers.Count > 0)
+        {
+            <dt class="col-sm-3">@(Meeting.Speakers.Count == 1 ? "Speaker" : "Speakers")</dt>
+            <dd class="col-sm-9">@string.Join(", ", Meeting.Speakers.Select(x => x.DisplayName))</dd>
+        }
+    </dl>
+
+    @if (!string.IsNullOrWhiteSpace(Meeting.Description))
+    {
+        <article class="markdown-body">
+            @((MarkupString)MarkdownRenderer.ToHtml(Meeting.Description))
+        </article>
+    }
+    else if (!string.IsNullOrWhiteSpace(Meeting.ShortDescription))
+    {
+        <p>@Meeting.ShortDescription</p>
+    }
+}

@@ -1,9 +1,26 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 @using UserGroupSiteOpus5.Client.Components
 
 <NavMenu />
 <main class="mt-2 container">
-    @Body
+    @* A component fault renders a recoverable message here instead of blanking the page. *@
+    <ErrorBoundary @ref="_errorBoundary">
+        <ChildContent>
+            @Body
+        </ChildContent>
+        <ErrorContent>
+            <div class="alert alert-danger" role="alert">
+                <h2 class="h5 alert-heading">Something went wrong</h2>
+                <p class="mb-2">
+                    This part of the page could not be displayed. The rest of the site is still
+                    working.
+                </p>
+                <button type="button" class="btn btn-sm btn-outline-danger" @onclick="RecoverAsync">
+                    Try again
+                </button>
+            </div>
+        </ErrorContent>
+    </ErrorBoundary>
     <ToastContainer @rendermode="InteractiveWebAssembly" />
 </main>
 

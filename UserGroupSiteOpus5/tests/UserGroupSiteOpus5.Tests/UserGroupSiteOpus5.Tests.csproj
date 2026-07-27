@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+    <!--
+      xUnit1051 asks every cancellable call to thread TestContext.Current.CancellationToken. These
+      tests run against an in-memory SQLite database and finish in milliseconds, so the token would
+      add noise to hundreds of call sites and buy no responsiveness. Suppressed here rather than
+      solution-wide, because TreatWarningsAsErrors would otherwise make it a build failure.
+    -->
+    <NoWarn>$(NoWarn);xUnit1051</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="bunit" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\UserGroupSiteOpus5.Client\UserGroupSiteOpus5.Client.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteOpus5.Data\UserGroupSiteOpus5.Data.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteOpus5.Server\UserGroupSiteOpus5.Server.csproj" />
+    <ProjectReference Include="..\..\src\UserGroupSiteOpus5.Shared\UserGroupSiteOpus5.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="Shouldly" />
+  </ItemGroup>
+
+</Project>

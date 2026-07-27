@@ -1,6 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Markdown rendering for event descriptions. Referenced here rather than in Server so the
+         WebAssembly client can render the live preview with the identical pipeline. -->
+    <PackageReference Include="Markdig" />
+  </ItemGroup>
 
 </Project>

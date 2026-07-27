@@ -1,0 +1,132 @@
+@page "/topics"
+@rendermode InteractiveWebAssembly
+@attribute [Authorize]
+
+<PageTitle>Topic suggestions</PageTitle>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h1 class="h2 mb-1">Topic suggestions</h1>
+        <p class="text-body-secondary mb-0">
+            What would you like to see presented? Vote for the ones you want, or volunteer to
+            present one yourself.
+        </p>
+    </div>
+    <button type="button" class="btn btn-primary" @onclick="() => IsSuggesting = !IsSuggesting">
+        <span class="bi bi-lightbulb" aria-hidden="true"></span>
+        @(IsSuggesting ? "Cancel" : "Suggest a topic")
+    </button>
+</div>
+
+@if (IsSuggesting)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="h5 card-title mb-3">Suggest a topic</h2>
+            <EditForm Model="NewSuggestion" OnValidSubmit="CreateAsync" FormName="topic-suggest">
+                <DataAnnotationsValidator />
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="NewSuggestion.Title"
+                               id="NewSuggestion.Title"
+                               class="form-control"
+                               placeholder="Topic title" />
+                    <label for="NewSuggestion.Title">Title</label>
+                    <ValidationMessage For="() => NewSuggestion.Title" class="text-danger" />
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputTextArea @bind-Value="NewSuggestion.Description"
+                                   id="NewSuggestion.Description"
+                                   class="form-control"
+                                   style="height: 8rem"
+                                   placeholder="What would you like covered?" />
+                    <label for="NewSuggestion.Description">Description (optional)</label>
+                    <ValidationMessage For="() => NewSuggestion.Description" class="text-danger" />
+                </div>
+
+                <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                    @if (IsSubmitting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+                    }
+                    Suggest it
+                </button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@if (Suggestions is null)
+{
+    <div class="d-flex align-items-center gap-2 text-body-secondary" role="status">
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>Loading suggestions…</span>
+    </div>
+}
+else if (Suggestions.Count == 0)
+{
+    <div class="card border-0 bg-body-tertiary">
+        <div class="card-body text-center py-5">
+            <p class="display-6 mb-2" aria-hidden="true"><span class="bi bi-lightbulb"></span></p>
+            <h2 class="h5">No suggestions yet</h2>
+            <p class="text-body-secondary mb-0">Be the first to suggest something you'd like to hear about.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var suggestion in Suggestions)
+        {
+            <div class="list-group-item py-3">
+                <div class="d-flex flex-wrap gap-3 align-items-start">
+                    <button type="button"
+                            class="btn @(suggestion.HasCurrentUserVoted ? "btn-primary" : "btn-outline-primary") d-flex flex-column align-items-center"
+                            style="min-width: 4rem"
+                            disabled="@(suggestion.HasCurrentUserVoted || IsBusy(suggestion.Id))"
+                            aria-label="@(suggestion.HasCurrentUserVoted
+                                            ? $"You have voted for {suggestion.Title}"
+                                            : $"Vote for {suggestion.Title}")"
+                            @onclick="() => VoteAsync(suggestion.Id)">
+                        <span class="bi @(suggestion.HasCurrentUserVoted ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up")"
+                              aria-hidden="true"></span>
+                        <span class="fw-semibold">@suggestion.VoteCount</span>
+                    </button>
+
+                    <div class="flex-grow-1">
+                        <h2 class="h5 mb-1">@suggestion.Title</h2>
+                        @if (!string.IsNullOrWhiteSpace(suggestion.Description))
+                        {
+                            <p class="mb-2">@suggestion.Description</p>
+                        }
+                        <p class="small text-body-secondary mb-2">
+                            Suggested by @suggestion.SuggestedByName
+                        </p>
+
+                        @if (suggestion.VolunteerUserId is null)
+                        {
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <span class="badge text-bg-secondary">Needs a speaker</span>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-success"
+                                        disabled="@IsBusy(suggestion.Id)"
+                                        @onclick="() => VolunteerAsync(suggestion.Id)">
+                                    <span class="bi bi-hand-index-thumb" aria-hidden="true"></span>
+                                    I'll present this
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-success">
+                                <span class="bi bi-person-video3" aria-hidden="true"></span>
+                                @suggestion.VolunteerName is presenting
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

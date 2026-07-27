@@ -1,6 +1,70 @@
 @page "/"
-<h3>Home</h3>
+@page "/events"
 
-<p>Welcome to your homepage</p>
-<p>With hot reload? Why did it think that worked for some reason?</p>
-<p>Now do I have hot reload?</p>
+<PageTitle>Upcoming and past meetings</PageTitle>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h1 class="h2 mb-1">Meetings</h1>
+        <p class="text-body-secondary mb-0">Everything the group has scheduled, most recent first.</p>
+    </div>
+    <AuthorizeView Roles="@ManagerRoles">
+        <a class="btn btn-outline-primary" href="/events/manage">
+            <span class="bi bi-pencil-square" aria-hidden="true"></span> Manage events
+        </a>
+    </AuthorizeView>
+</div>
+
+@if (Events is null)
+{
+    <div class="d-flex align-items-center gap-2 text-body-secondary" role="status">
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>Loading meetings…</span>
+    </div>
+}
+else if (Events.Count == 0)
+{
+    <div class="card border-0 bg-body-tertiary">
+        <div class="card-body text-center py-5">
+            <p class="display-6 mb-2" aria-hidden="true"><span class="bi bi-calendar-event"></span></p>
+            <h2 class="h5">No meetings published yet</h2>
+            <p class="text-body-secondary mb-0">Check back soon — the next one is probably being planned.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var meeting in Events)
+        {
+            <a class="list-group-item list-group-item-action py-3" href="@($"/events/{meeting.Slug}")">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                    <h2 class="h5 mb-1">@meeting.Title</h2>
+                    @if (meeting.EventDateTime is { } when)
+                    {
+                        <span class="badge text-bg-secondary">@when.ToLocalTime().ToString("ddd d MMM yyyy, HH:mm")</span>
+                    }
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(meeting.ShortDescription))
+                {
+                    <p class="mb-2 text-body-secondary">@meeting.ShortDescription</p>
+                }
+
+                <div class="d-flex flex-wrap gap-3 small text-body-secondary">
+                    @if (!string.IsNullOrWhiteSpace(meeting.Location))
+                    {
+                        <span><span class="bi bi-geo-alt" aria-hidden="true"></span> @meeting.Location</span>
+                    }
+                    @if (meeting.Speakers.Count > 0)
+                    {
+                        <span>
+                            <span class="bi bi-person-video3" aria-hidden="true"></span>
+                            @string.Join(", ", meeting.Speakers.Select(x => x.DisplayName))
+                        </span>
+                    }
+                </div>
+            </a>
+        }
+    </div>
+}

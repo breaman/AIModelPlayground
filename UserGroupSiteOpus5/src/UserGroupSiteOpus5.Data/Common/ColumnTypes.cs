@@ -17,4 +17,7 @@ public static class ColumnTypes
 
     /// <summary>Business dates with no time component, such as a needed-by date.</summary>
     public const string BusinessDate = "date";
+
+    /// <summary>Unbounded Markdown body text.</summary>
+    public const string MarkdownText = "nvarchar(max)";
 }

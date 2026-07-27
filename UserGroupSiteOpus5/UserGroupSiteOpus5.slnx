@@ -19,4 +19,7 @@
     <Project Path="src/UserGroupSiteOpus5.Server/UserGroupSiteOpus5.Server.csproj" />
     <Project Path="src/UserGroupSiteOpus5.Shared/UserGroupSiteOpus5.Shared.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UserGroupSiteOpus5.Tests/UserGroupSiteOpus5.Tests.csproj" />
+  </Folder>
 </Solution>
